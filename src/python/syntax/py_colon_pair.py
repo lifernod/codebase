@@ -31,23 +31,39 @@ class PyColonPair(PositionMeta):
 ## Parsers
 #########################################################################
 
-def parse_colon_pair(ast_node: ast.arg | ast.AnnAssign) -> PyColonPair:
+def parse_colon_pair(ast_node: ast.arg | ast.AnnAssign, explicit_type: str | None = None) -> PyColonPair:
     """
     Парсит указанный узел в `PyColonPair`.
     Узел должен представлять собой либо аргумент функции (`ast.arg`),
     либо поле класса (`ast.AnnAssign`).
 
     :param ast_node: Узел
+    :param explicit_type: Формированное указание типа. Если указано, то устанавливает `PyColonPair.ty` равным этому значению вне зависимости от реального типа
     :return: PyColonPair
     """
+
+    line_start = ast_node.lineno
+    line_end = ast_node.end_lineno
+    col_start = ast_node.col_offset
+    col_end = ast_node.end_col_offset
+    ty = explicit_type if explicit_type is not None else unparse_annotation(ast_node.annotation)
+
     if isinstance(ast_node, ast.arg):
         return PyColonPair(
             name=ast_node.arg,
-            ty=unparse_annotation(ast_node.annotation)
+            ty=ty,
+            line_start=line_start,
+            line_end=line_end,
+            col_start=col_start,
+            col_end=col_end
         )
     else:
         # TODO: сделать проверку на различные типы ast_node.target
         return PyColonPair(
             name=ast_node.target.id,
-            ty=unparse_annotation(ast_node.annotation)
+            ty=ty,
+            line_start=line_start,
+            line_end=line_end,
+            col_start=col_start,
+            col_end=col_end
         )

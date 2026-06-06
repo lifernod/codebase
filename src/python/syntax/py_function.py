@@ -45,7 +45,7 @@ class PyFunction(PositionMeta, AnnotatedMeta, BodyMeta):
 ## Parsers
 #########################################################################
 
-def parse_function(ast_node: ast.FunctionDef | ast.AsyncFunctionDef) -> PyFunction:
+def parse_function(ast_node: ast.FunctionDef | ast.AsyncFunctionDef, class_name: str | None = None) -> PyFunction:
     """
     Парсит указанный узел в `PyFunction`.
     Узел должен представлять собой либо функцию (в т.ч. метод класса) (`ast.FunctionDef`),
@@ -64,13 +64,20 @@ def parse_function(ast_node: ast.FunctionDef | ast.AsyncFunctionDef) -> PyFuncti
     doc = ast.get_docstring(ast_node)
     is_async = isinstance(ast_node, ast.AsyncFunctionDef)
 
-    args = [parse_colon_pair(arg) for arg in ast_node.args.args]
+    args = []
+    for arg in ast_node.args.args:
+        if arg.arg == 'self' and class_name is not None:
+            args.append(parse_colon_pair(arg, explicit_type=class_name))
+            continue
+        args.append(parse_colon_pair(arg))
+
     return_ty = unparse_annotation(ast_node.returns)
 
     body = ast.unparse(ast_node.body)
 
     return PyFunction(
         name=name,
+        related_class_name=class_name,
         line_start=line_start,
         line_end=line_end,
         col_start=col_start,

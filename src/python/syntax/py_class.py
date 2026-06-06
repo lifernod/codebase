@@ -59,25 +59,6 @@ class PyClass(PositionMeta, AnnotatedMeta):
     def add_method(self, f: PyFunction):
         self.methods.append(f)
 
-    # TODO: пропагировать единожды
-    # Создать новый метод для получения PyClass.methods (т.н. геттер) и создать новое состояние для отслеживания
-    # был ли уже пропагирован данный класс, чтобы удостовериться,
-    # что данный метод вызывается только один раз - при первом вызове
-
-    def propagate_self_type(self):
-        """
-        Смотрит во все функции и изменяет их аргументы с именем `self`, устанавливая
-        им `type = self.name`, т.е. устанавливает название текущего класса как тип.
-
-        Простым перебором проходит сначала по функциям, потом для каждой функции
-        простым перебором проходит по ее аргументам (т.е. вложенный цикл).
-        Следует вызывать один раз - при создании объекта
-        """
-        for m in self.methods:
-            for a in m.args:
-                if a.name == "self":
-                    a.ty = self.name
-
 
 #########################################################################
 ## Parsers
@@ -114,12 +95,12 @@ def parse_class(ast_node: ast.ClassDef) -> PyClass:
         if isinstance(item, ast.AnnAssign):
             cls.add_field(parse_colon_pair(item))
         elif isinstance(item, ast.FunctionDef | ast.AsyncFunctionDef):
+
             if item.name == "__init__":
-                cls.constructor = parse_function(item)
+                cls.constructor = parse_function(item, class_name=cls.name)
             else:
-                cls.add_method(parse_function(item))
+                cls.add_method(parse_function(item, class_name=cls.name))
         else:
             continue
 
-    cls.propagate_self_type()
     return cls

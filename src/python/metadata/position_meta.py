@@ -14,10 +14,10 @@ class PositionMeta:
         col_end (int | None): Номер колонки, на которой заканчивается объект.
 
     Examples:
-        >>> code = '''def hello(name): ...'''
+        >>> code = '''def hello(name: str): ...'''
         name    line_start    line_end    col_start    col_end
         hello   1             1           0            20 (заканчивается после троеточия)
-        name    1             1           10           14
+        name    1             1           10           19 (заканчивается перед скобкой
     """
     line_start: int
     line_end: int | None
