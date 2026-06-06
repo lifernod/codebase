@@ -22,12 +22,14 @@ class PyModule:
 
     Examples:
         # /example/hello.py
-        >>> MESSAGE = "Hello"
+        >>> import sys
+        ... MESSAGE = "Hello"
         ... class Foo: ...
         ... def bar(...): ...
         PyModule(
             path="/example/hello.py",
             doc=None,
+            imports=[PyImport(module="sys", name=None, alias=None, level=0)]
             assigns=[PyAssign(name="MESSAGE", ty=None, value="Hello")],
             functions=[...],
             classes=[...]
@@ -62,7 +64,6 @@ class PyModule:
 ## Parsers
 #########################################################################
 
-# TODO: параллельно(?) парсить массив файлов
 def parse_module(path: str, content: bytes) -> PyModule:
     """
     Парсит входной код в `PyModule`.
