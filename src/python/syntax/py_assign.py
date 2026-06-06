@@ -35,6 +35,7 @@ class PyAssign(PositionMeta):
     ty: str | None = field(default=None)
     value: str | None = field(default=None)
 
+
 #########################################################################
 ## Parsers
 #########################################################################
@@ -86,4 +87,3 @@ def parse_assign(ast_node: ast.Assign | ast.AnnAssign) -> PyAssign | None:
             col_start=col_start,
             col_end=col_end
         )
-

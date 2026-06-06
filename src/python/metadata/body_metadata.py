@@ -30,4 +30,3 @@ class BodyMeta:
         Превращает таб (четыре пробела) в \t.
         """
         self.body_str.replace("    ", "\t")
-

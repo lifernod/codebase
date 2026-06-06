@@ -1,6 +1,6 @@
 import ast
 
-from python.syntax.py_assign import parse_assign
+from python.syntax import parse_assign
 
 def test_assign_variable():
     code = "name = 'Hello'"

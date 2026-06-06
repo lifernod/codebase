@@ -1,8 +1,8 @@
 import ast
 from dataclasses import dataclass, field
 
-from src.python.metadata.position_meta import PositionMeta
-from src.python.utils.ast_utils import unparse_annotation
+from ..utils import unparse_annotation
+from ..metadata import PositionMeta
 
 
 @dataclass

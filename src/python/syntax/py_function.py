@@ -1,11 +1,9 @@
 import ast
 from dataclasses import dataclass, field
 
-from python.metadata.body_metadata import BodyMeta
-from src.python.metadata.annotated_meta import AnnotatedMeta
-from src.python.metadata.position_meta import PositionMeta
-from src.python.syntax.py_colon_pair import PyColonPair, parse_colon_pair
-from src.python.utils.ast_utils import unparse_annotation
+from . import PyColonPair, parse_colon_pair
+from ..metadata import BodyMeta, AnnotatedMeta, PositionMeta
+from ..utils import unparse_annotation
 
 
 @dataclass

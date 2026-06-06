@@ -1,10 +1,8 @@
 import ast
 from dataclasses import dataclass, field
 
-from src.python.metadata.annotated_meta import AnnotatedMeta
-from src.python.metadata.position_meta import PositionMeta
-from src.python.syntax.py_colon_pair import PyColonPair, parse_colon_pair
-from src.python.syntax.py_function import PyFunction, parse_function
+from . import PyColonPair, parse_colon_pair, PyFunction, parse_function
+from ..metadata import AnnotatedMeta, PositionMeta
 
 
 @dataclass
