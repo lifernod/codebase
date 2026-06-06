@@ -1,7 +1,8 @@
 import ast
 from dataclasses import dataclass, field
 
-from . import PyColonPair, parse_colon_pair, PyFunction, parse_function
+from .py_colon_pair import PyColonPair, parse_colon_pair
+from .py_function import PyFunction, parse_function
 from ..metadata import AnnotatedMeta, PositionMeta
 
 

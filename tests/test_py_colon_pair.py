@@ -18,6 +18,7 @@ def test_function_typed_arg():
             assert pair.col_end == 19
             break
 
+
 def test_function_untyped_arg():
     code = "def hello(name): ..."
 
@@ -32,6 +33,7 @@ def test_function_untyped_arg():
             assert pair.col_start == 10
             assert pair.col_end == 14
             break
+
 
 def test_class_field():
     code = """

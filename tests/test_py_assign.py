@@ -2,6 +2,7 @@ import ast
 
 from python.syntax import parse_assign
 
+
 def test_assign_variable():
     code = "name = 'Hello'"
 
@@ -15,6 +16,7 @@ def test_assign_variable():
             assert a.value == "'Hello'"
             break
 
+
 def test_assign_with_ty():
     code = "name: str = 'Hello'"
 
@@ -27,6 +29,7 @@ def test_assign_with_ty():
             assert a.ty == "str"
             assert a.value == "'Hello'"
             break
+
 
 def test_fail_assign_multiple():
     code = "name, age = 'Hello', 52"

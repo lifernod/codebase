@@ -2,9 +2,9 @@ import ast
 from dataclasses import dataclass, field
 
 from .py_assign import PyAssign, parse_assign
+from .py_class import PyClass, parse_class
 from .py_function import PyFunction, parse_function
 from .py_import import PyImport, parse_imports
-from .py_class import PyClass, parse_class
 
 
 @dataclass

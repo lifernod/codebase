@@ -2,6 +2,7 @@ import ast
 
 from python.syntax import parse_imports
 
+
 def test_import_simple():
     code = "import sys"
 
@@ -16,6 +17,7 @@ def test_import_simple():
             assert i[0].level == 0
             break
 
+
 def test_import_simple_with_alias():
     code = "import sys as s"
 
@@ -29,6 +31,7 @@ def test_import_simple_with_alias():
             assert i[0].alias == "s"
             assert i[0].level == 0
             break
+
 
 def test_import_simple_multiple():
     code = "import sys, functools, itertools"
@@ -46,6 +49,7 @@ def test_import_simple_multiple():
             assert i[2].name is None
             break
 
+
 def test_import_from():
     code = "from sys import argv"
 
@@ -59,6 +63,7 @@ def test_import_from():
             assert i[0].alias is None
             assert i[0].level == 0
             break
+
 
 def test_import_from_all():
     code = "from sys import *"

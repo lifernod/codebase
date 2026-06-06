@@ -21,6 +21,7 @@ def hello() -> str:
             assert f.related_class_name is None
             break
 
+
 def test_function_without_args_without_return_type():
     code = """
 def hello():
@@ -38,6 +39,7 @@ def hello():
             assert f.body_str == "return 123"
             assert f.related_class_name is None
             break
+
 
 def test_function_with_args():
     code = """
@@ -63,6 +65,7 @@ def hello(name: str, age):
             assert f.related_class_name is None
             break
 
+
 def test_function_class_init():
     code = """
 class Hello:
@@ -87,6 +90,7 @@ class Hello:
             assert f.body_str == "..."
             assert f.related_class_name == "Hello"
             break
+
 
 def test_function_class_method():
     code = """

@@ -1,6 +1,6 @@
 from pprint import pprint
 
-from python.syntax import parse_module
+from python.syntax.py_module import parse_module
 
 
 def test_module_file():

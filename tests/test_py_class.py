@@ -2,6 +2,7 @@ import ast
 
 from python.syntax import parse_class
 
+
 def test_class_with_only_constructor():
     code = """
 class Hello:
@@ -26,6 +27,7 @@ class Hello:
             assert c.constructor.args[0].ty == "Hello"
             break
 
+
 def test_class_with_only_fields():
     code = """
 class Hello:
@@ -48,6 +50,7 @@ class Hello:
             assert c.fields[1].name == "age"
             assert c.fields[1].ty == "int"
             break
+
 
 def test_class_with_method_and_ctor():
     code = """
@@ -80,6 +83,7 @@ class Hello:
             assert c.methods[0].args[0].ty == "Hello"
 
             break
+
 
 def test_class_full():
     code = """

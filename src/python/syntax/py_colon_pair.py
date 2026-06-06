@@ -1,8 +1,8 @@
 import ast
 from dataclasses import dataclass, field
 
-from ..utils import unparse_annotation
 from ..metadata import PositionMeta
+from ..utils import unparse_annotation
 
 
 @dataclass
