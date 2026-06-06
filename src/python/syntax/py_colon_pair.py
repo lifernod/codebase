@@ -58,7 +58,6 @@ def parse_colon_pair(ast_node: ast.arg | ast.AnnAssign, explicit_type: str | Non
             col_end=col_end
         )
     else:
-        # TODO: сделать проверку на различные типы ast_node.target
         return PyColonPair(
             name=ast_node.target.id,
             ty=ty,
