@@ -1,6 +1,7 @@
 import ast
 from dataclasses import dataclass, field
 
+from python.metadata.body_metadata import BodyMeta
 from src.python.metadata.annotated_meta import AnnotatedMeta
 from src.python.metadata.position_meta import PositionMeta
 from src.python.syntax.py_colon_pair import PyColonPair, parse_colon_pair
@@ -8,7 +9,7 @@ from src.python.utils.ast_utils import unparse_annotation
 
 
 @dataclass
-class PyFunction(PositionMeta, AnnotatedMeta):
+class PyFunction(PositionMeta, AnnotatedMeta, BodyMeta):
     """
     Сигнатура функции.
     Используется для представления top-level функций и методов класса.
@@ -66,6 +67,8 @@ def parse_function(ast_node: ast.FunctionDef | ast.AsyncFunctionDef) -> PyFuncti
     args = [parse_colon_pair(arg) for arg in ast_node.args.args]
     return_ty = unparse_annotation(ast_node.returns)
 
+    body = ast.unparse(ast_node.body)
+
     return PyFunction(
         name=name,
         line_start=line_start,
@@ -75,5 +78,6 @@ def parse_function(ast_node: ast.FunctionDef | ast.AsyncFunctionDef) -> PyFuncti
         doc=doc,
         is_async=is_async,
         args=args,
-        return_ty=return_ty
+        return_ty=return_ty,
+        body_str=body
     )
