@@ -3,11 +3,11 @@ from dataclasses import dataclass, field
 
 from .py_colon_pair import PyColonPair, parse_colon_pair
 from .py_function import PyFunction, parse_function
-from ..metadata import AnnotatedMeta, PositionMeta
+from ..metadata import AnnotatedMeta, PositionMeta, BodyMeta
 
 
 @dataclass
-class PyClass(PositionMeta, AnnotatedMeta):
+class PyClass(PositionMeta, AnnotatedMeta, BodyMeta):
     """
     Сигнатура класса.
     Используется для представления класса.
@@ -79,6 +79,7 @@ def parse_class(ast_node: ast.ClassDef) -> PyClass:
     col_end = ast_node.end_col_offset
 
     doc = ast.get_docstring(ast_node)
+    body = ast.unparse(ast_node.body)
 
     cls = PyClass(
         name=name,
@@ -86,7 +87,8 @@ def parse_class(ast_node: ast.ClassDef) -> PyClass:
         line_end=line_end,
         col_start=col_start,
         col_end=col_end,
-        doc=doc
+        doc=doc,
+        body_str=body
     )
 
     # Собираем поля класса и его методы

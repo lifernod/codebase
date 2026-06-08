@@ -22,6 +22,15 @@ class BodyMeta:
         >>> def hello():
         ...     name = "aaa"
         body_str = "name = 'aaa'"
+
+        >>> class Hello:
+        ...     name: str
+        ...     def __init__(self):
+        ...         ...
+        ...     def hello(self):
+        ...         ...
+        body_str_1 = "name: str\n\ndef __init__(self):\n\t...\n\ndef hello(self):\n\t..."
+        body_str_2 = "name: str\n\ndef __init__(self):\n    ...\n\ndef hello(self):\n    ..."
     """
     body_str: str
 
@@ -29,4 +38,4 @@ class BodyMeta:
         """
         Превращает таб (четыре пробела) в \t.
         """
-        self.body_str.replace("    ", "\t")
+        self.body_str = self.body_str.replace("    ", "\t")

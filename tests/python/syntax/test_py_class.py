@@ -122,3 +122,21 @@ class Hello:
             assert c.methods[0].args[1].ty == "int"
 
             break
+
+def test_class_body_str():
+    code = """
+class Hello:
+    name: str
+    def __init__(self):
+        ...
+    def hello(self):
+        ...
+        """
+    tree = ast.parse(code)
+    for item in ast.walk(tree):
+        if isinstance(item, ast.ClassDef):
+            c = parse_class(item)
+
+            assert c.body_str == "name: str\n\ndef __init__(self):\n\t...\n\ndef hello(self):\n\t..."
+
+            break
