@@ -50,6 +50,7 @@ def parse_function(ast_node: ast.FunctionDef | ast.AsyncFunctionDef, class_name:
     либо асинхронную функцию (в т.ч. метод класса) (`ast.AsyncFunctionDef`).
 
     :param ast_node: Узел
+    :param class_name: Имя класса, для которого функция является методом
     :return: PyFunction
     """
     name = ast_node.name
