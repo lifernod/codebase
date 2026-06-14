@@ -19,6 +19,7 @@
 .idea/**/dynamic.xml
 .idea/**/uiDesigner.xml
 .idea/**/dbnavigator.xml
-
+.venv
 # UV
 uv.lock
+archive

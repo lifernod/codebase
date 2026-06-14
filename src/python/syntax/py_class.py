@@ -2,6 +2,7 @@ import ast
 from dataclasses import dataclass, field
 
 from .py_colon_pair import PyColonPair, parse_colon_pair
+from .py_resolver import resolve_call_name
 from .py_function import PyFunction, parse_function
 from ..metadata import AnnotatedMeta, PositionMeta, BodyMeta
 
@@ -51,6 +52,7 @@ class PyClass(PositionMeta, AnnotatedMeta, BodyMeta):
     constructor: PyFunction | None = field(default=None)
     fields: list[PyColonPair] = field(default_factory=list)
     methods: list[PyFunction] = field(default_factory=list)
+    calls: list[dict] = field(default_factory=list)
 
     def add_field(self, f: PyColonPair):
         self.fields.append(f)
@@ -79,7 +81,23 @@ def parse_class(ast_node: ast.ClassDef) -> PyClass:
     col_end = ast_node.end_col_offset
 
     doc = ast.get_docstring(ast_node)
-    body = ast.unparse(ast_node.body)
+    """
+    Сохраняем полностью ноду с сигнатурой
+    """
+    body = ast.unparse(ast_node)
+    """
+    :TODO добавить внешний код классы
+    """
+
+    extracted_calls = []
+    for child in ast.walk(ast_node):
+        if isinstance(child, ast.Call):
+            call_name = resolve_call_name(child.func)
+            extracted_calls.append({
+                "name": call_name,
+                "line": child.lineno,
+                "code": ast.unparse(child)
+            })
 
     cls = PyClass(
         name=name,
@@ -88,7 +106,8 @@ def parse_class(ast_node: ast.ClassDef) -> PyClass:
         col_start=col_start,
         col_end=col_end,
         doc=doc,
-        body_str=body
+        body_str=body,
+        calls=extracted_calls
     )
 
     # Собираем поля класса и его методы
