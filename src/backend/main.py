@@ -9,7 +9,7 @@ from tabulate import tabulate
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from starlette.status import HTTP_400_BAD_REQUEST
 
-from api import process_archive
+from api.parse_archive import process_archive
 from api.types.process_response import ProcessResponse
 
 app = FastAPI(
