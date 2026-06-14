@@ -1,6 +1,6 @@
 import ast
 
-from python.syntax import parse_class
+from backend.python.syntax import parse_class
 
 
 def test_class_with_only_constructor():

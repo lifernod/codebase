@@ -1,6 +1,6 @@
 import ast
 
-from python.syntax import parse_imports
+from backend.python.syntax import parse_imports
 
 
 def test_import_simple():

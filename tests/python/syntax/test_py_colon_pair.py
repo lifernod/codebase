@@ -1,6 +1,6 @@
 import ast
 
-from python.syntax import parse_colon_pair
+from backend.python.syntax import parse_colon_pair
 
 
 def test_function_typed_arg():
