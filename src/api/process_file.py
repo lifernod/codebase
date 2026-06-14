@@ -12,6 +12,8 @@ def process_file(path: Path) -> bool:
         errors="ignore"
     )
 
-    # TODO: Вызывать на python.syntax.parse_module
-    # parse_module()
+    # TODO: Заменить вызов
+    # metadata = prepare_metadata()
+    # chunk = prepare_chunk_for_database(metadata)
+    # return chunk
     return True
