@@ -5,6 +5,7 @@ from .py_assign import PyAssign, parse_assign
 from .py_class import PyClass, parse_class
 from .py_function import PyFunction, parse_function
 from .py_import import PyImport, parse_imports
+from .py_resolver import TopLevelCallVisitor
 
 
 @dataclass
@@ -43,6 +44,8 @@ class PyModule:
     assigns: list[PyAssign] = field(default_factory=list)
     functions: list[PyFunction] = field(default_factory=list)
     classes: list[PyClass] = field(default_factory=list)
+    calls: list[dict] = field(default_factory=list)
+    top_level_code: list[dict] = field(default_factory=list)
 
     def add_import(self, i: PyImport):
         self.imports.append(i)
@@ -58,6 +61,9 @@ class PyModule:
 
     def add_class(self, c: PyClass):
         self.classes.append(c)
+
+    def add_top_level_code(self, code_block: dict):
+        self.top_level_code.append(code_block)
 
 
 #########################################################################
@@ -81,6 +87,15 @@ def parse_module(path: str, content: bytes) -> PyModule:
     mod = PyModule(path=path)
 
     ast_tree = ast.parse(content)
+
+    """
+    Собираем глобальные вызовы (типа app.include_router)
+    """
+    top_level_visitor = TopLevelCallVisitor()
+    top_level_visitor.visit(ast_tree)
+    global_calls = top_level_visitor.calls
+    mod.calls = global_calls
+
     for item in ast_tree.body:
         if isinstance(item, ast.Import | ast.ImportFrom):
             i = parse_imports(item)
@@ -95,7 +110,17 @@ def parse_module(path: str, content: bytes) -> PyModule:
             if a is not None:
                 mod.add_assign(a)
         else:
-            # Not implemented yet
-            continue
+            # Вся остальная параша (If, For, While, Try и т.д.)
+            if isinstance(item, ast.Pass):
+                continue
+
+            if isinstance(item, ast.Expr) and isinstance(item.value, ast.Call):
+                continue
+
+            mod.add_top_level_code({
+                "line_start": str(getattr(item, "lineno", "")),
+                "line_end": str(getattr(item, "end_lineno", "")),
+                "code": ast.unparse(item)
+            })
 
     return mod

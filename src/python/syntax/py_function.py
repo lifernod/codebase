@@ -2,6 +2,7 @@ import ast
 from dataclasses import dataclass, field
 
 from .py_colon_pair import PyColonPair, parse_colon_pair
+from .py_resolver import resolve_call_name
 from ..metadata import BodyMeta, AnnotatedMeta, PositionMeta
 from ..utils import unparse_annotation
 
@@ -36,6 +37,7 @@ class PyFunction(PositionMeta, AnnotatedMeta, BodyMeta):
     is_async: bool = field(default=False)
 
     args: list[PyColonPair] = field(default_factory=list)
+    calls: list[dict] = field(default_factory=list)
     return_ty: str | None = field(default=None)
 
 
@@ -72,7 +74,23 @@ def parse_function(ast_node: ast.FunctionDef | ast.AsyncFunctionDef, class_name:
 
     return_ty = unparse_annotation(ast_node.returns)
 
-    body = ast.unparse(ast_node.body)
+    """
+    Сохраняем полностью ноду с сигнатурой
+    """
+    body = ast.unparse(ast_node)
+
+    """
+    Сохраняем все вызовы
+    """
+    extracted_calls = []
+    for child in ast.walk(ast_node):
+        if isinstance(child, ast.Call):
+            call_name = resolve_call_name(child.func)
+            extracted_calls.append({
+                "name": call_name,
+                "line": child.lineno,
+                "code": ast.unparse(child)
+            })
 
     return PyFunction(
         name=name,
@@ -85,5 +103,6 @@ def parse_function(ast_node: ast.FunctionDef | ast.AsyncFunctionDef, class_name:
         is_async=is_async,
         args=args,
         return_ty=return_ty,
-        body_str=body
+        body_str=body,
+        calls=extracted_calls
     )
