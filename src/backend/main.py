@@ -4,14 +4,13 @@ import time
 import zipfile
 from pathlib import Path
 
-from fastapi.params import Query
 from starlette import status
 from tabulate import tabulate
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from starlette.status import HTTP_400_BAD_REQUEST
 
-from src.api.parse_archive import process_archive
-from src.api.types.process_response import ProcessResponse
+from api import process_archive
+from api.types.process_response import ProcessResponse
 
 app = FastAPI(
     title="codebase.py",

@@ -1,6 +1,6 @@
 import ast
 
-from python.syntax import parse_assign
+from backend.python.syntax import parse_assign
 
 
 def test_assign_variable():

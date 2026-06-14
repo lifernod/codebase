@@ -1,6 +1,6 @@
 import ast
 
-from python.syntax import parse_function
+from backend.python.syntax import parse_function
 
 
 def test_function_without_args_with_return_type():
