@@ -9,7 +9,7 @@ jobs:
     runs-on: self-hosted
     steps:
       - name: Get code
-        run: cd /opt/codebase && git pull && git checkout develop
+        run: cd /opt/codebase && git pull && git checkout dev
 
       - name: Start services
         run: cd /opt/codebase && docker compose --profile full up -d
