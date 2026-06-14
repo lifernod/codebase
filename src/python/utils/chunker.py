@@ -1,3 +1,7 @@
+import os
+import json
+
+
 def create_global_chunk(module_data: list[dict]) -> list[dict]:
     chunks = []
     file_path = module_data["path"]
@@ -57,10 +61,10 @@ def create_chunks(module_data: list[dict]) -> list[str]:
 
     for func in module_data.get("functions", []):
         func_text = (
-            f"Путь: {file_path}\n"
-            f"Название: {func['name']}\n"
-            f"Возвращаемый тип: {func['return_ty']}\n"
-            f"Код функции:\n{func['body_str']}"
+            f"# Путь: {file_path}\n"
+            f"# Название: {func['name']}\n"
+            f"# Возвращаемый тип: {func['return_ty']}\n"
+            f"# Код функции:\n{func['body_str']}"
         )
 
         func_chunk = {
@@ -84,11 +88,11 @@ def create_chunks(module_data: list[dict]) -> list[str]:
 
         for method in c.get("methods", []):
             method_text = (
-                f"Путь: {file_path}\n"
-                f"Класс: {class_name}\n"
-                f"Название: {method['name']}\n"
-                f"Возвращаемый тип: {method['return_ty']}\n"
-                f"Код метода:\n{method['body_str']}"
+                f"# # Путь: {file_path}\n"
+                f"# Класс: {class_name}\n"
+                f"# Название: {method['name']}\n"
+                f"# Возвращаемый тип: {method['return_ty']}\n"
+                f"# Код метода:\n{method['body_str']}"
             )
 
             chunk_id = f"{file_path}:{class_name}:methodс:{method['name']}:{method['line_start']}"
@@ -110,3 +114,72 @@ def create_chunks(module_data: list[dict]) -> list[str]:
             }
             chunks.append(method_chunk)
     return chunks
+
+
+def get_all_chunks(path: str) -> list[dict]:
+    global count_meya
+    all_project_chunks = []
+    project_call_stack = {}
+
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            if file.endswith('.py'):
+                file_path = os.path.join(root, file)
+
+                try:
+                    with open(file_path, 'rb') as f:
+                        content = f.read()
+
+                    module = parse_module(file_path, content)
+                    metadata = as_str_dict(module)
+
+                    global_chunk = create_global_chunk(metadata)
+                    atomic_chunks = create_chunks(metadata)
+
+                    if global_chunk:
+                        all_project_chunks.extend(global_chunk)
+                    if atomic_chunks:
+                        all_project_chunks.extend(atomic_chunks)
+
+                    call_stack_node = get_call_stack_node(metadata)
+                    project_call_stack.update(call_stack_node)
+
+                except Exception as e:
+                    pass
+
+    try:
+        with open('call_stack.json', 'w', encoding='utf-8') as f:
+            json.dump(project_call_stack, f, indent=4, ensure_ascii=False)
+    except Exception as e:
+        print(f"Ошибка при сохранении call_stack.json: {e}")
+
+    return all_project_chunks
+
+
+def get_call_stack_node(module_data: dict) -> dict:
+    """
+    Формирует узел графа вызовов для конкретного модуля.
+    Возвращает словарь вида { "путь_к_файлу": { "global": ..., "functions": ..., "classes": ... } }
+    """
+    path = module_data.get('path', 'unknown_path')
+
+    node_structure = {
+        'imports': module_data.get('imports', []),
+        'global': module_data.get('calls', []),
+        'functions': {},
+        'classes': {}
+    }
+
+    if module_data.get("functions"):
+        for function in module_data["functions"]:
+            node_structure['functions'][function['name']] = function.get('calls', [])
+
+    if module_data.get("classes"):
+        for cls in module_data["classes"]:
+            class_name = cls['name']
+            node_structure['classes'][class_name] = {}
+
+            for method in cls.get("methods", []):
+                node_structure['classes'][class_name][method['name']] = method.get('calls', [])
+
+    return {path: node_structure}
