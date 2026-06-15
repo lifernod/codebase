@@ -1,16 +1,25 @@
 import os
 import json
+from ..utils.as_str_dict import as_str_dict
+from ..syntax.py_module import parse_module
 
 
 def create_global_chunk(module_data: list[dict]) -> list[dict]:
+    """
+    Функция для создания глобальных чанков модулей
+    Args:
+        module_data: метаданные модуля
+    Returns:
+        list[dict]: список словарей чанков
+    """
     chunks = []
     file_path = module_data["path"]
 
-    global_text_parts = [f"# Путь: {file_path}"]
+    global_text_parts = [f"# Path: {file_path}"]
 
     # Импорты
     if module_data.get("imports"):
-        global_text_parts.append("\n# Импорты:")
+        global_text_parts.append("\n# Imports:")
         for imp in module_data["imports"]:
             if imp["name"] and imp["name"] != "None":
                 global_text_parts.append(f"from {imp['module']} import {imp['name']}")
@@ -19,13 +28,13 @@ def create_global_chunk(module_data: list[dict]) -> list[dict]:
 
     # Глобальные переменные
     if module_data.get("assigns"):
-        global_text_parts.append("\n# Глобальные переменные:")
+        global_text_parts.append("\n# Global assigns:")
         for assign in module_data["assigns"]:
             global_text_parts.append(f"{assign['name']} = {assign['value']}")
 
     # Код верхнего уровня
     if module_data.get("top_level_code"):
-        global_text_parts.append("\n# Логика выполнения верхнего уровня:")
+        global_text_parts.append("\n# Top level code:")
         for code_block in module_data["top_level_code"]:
             global_text_parts.append(code_block["code"])
 
@@ -56,15 +65,22 @@ def create_global_chunk(module_data: list[dict]) -> list[dict]:
 
 
 def create_chunks(module_data: list[dict]) -> list[str]:
+    """
+    Функция для создания чанков из функций/методов
+    Args:
+        module_data: метаданные модуля
+    Returns:
+        list[dict]: список словарей чанков
+    """
     chunks = []
     file_path = module_data["path"]
 
     for func in module_data.get("functions", []):
         func_text = (
-            f"# Путь: {file_path}\n"
-            f"# Название: {func['name']}\n"
-            f"# Возвращаемый тип: {func['return_ty']}\n"
-            f"# Код функции:\n{func['body_str']}"
+            f"# Path: {file_path}\n"
+            f"# Name: {func['name']}\n"
+            f"# Return type: {func['return_ty']}\n"
+            f"# Code:\n{func['body_str']}"
         )
 
         func_chunk = {
@@ -88,11 +104,11 @@ def create_chunks(module_data: list[dict]) -> list[str]:
 
         for method in c.get("methods", []):
             method_text = (
-                f"# # Путь: {file_path}\n"
-                f"# Класс: {class_name}\n"
-                f"# Название: {method['name']}\n"
-                f"# Возвращаемый тип: {method['return_ty']}\n"
-                f"# Код метода:\n{method['body_str']}"
+                f"# Path: {file_path}\n"
+                f"# Class: {class_name}\n"
+                f"# Name: {method['name']}\n"
+                f"# Return type: {method['return_ty']}\n"
+                f"# Code:\n{method['body_str']}"
             )
 
             chunk_id = f"{file_path}:{class_name}:methodс:{method['name']}:{method['line_start']}"
@@ -116,8 +132,60 @@ def create_chunks(module_data: list[dict]) -> list[str]:
     return chunks
 
 
+def create_class_chunks(module_data: list[dict]) -> list[str]:
+    """
+    Функция для создания чанков из кода верхнего уровня классов
+    Args:
+        module_data: метаданные модуля
+    Returns:
+        list[dict]: список словарей чанков
+    """
+    chunks = []
+    file_path = module_data["path"]
+
+    for cls in module_data.get("classes", []):
+        if cls['body_str']:
+            lst = []
+            for func in cls['methods']:
+                lst.append({
+                    "name": func["name"],
+                    "line_start": func["line_start"],
+                    "line_end": func["line_end"],
+                })
+            class_text = (
+                f"# Path: {file_path}\n"
+                f"# Name: {cls['name']}\n"
+                f"# Methods: {lst if len(lst) else None}\n"
+                f"# Code:\n{cls['body_str']}"
+            )
+
+            chunk_id = f"{file_path}:{cls["name"]}:{cls['line_start']}"
+
+            class_chunk = {
+                "id": chunk_id,
+                "chunk": class_text,
+                "metadata": {
+                    "doc": cls.get("doc", "None"),
+                    "chunk_type": "class",
+                    "path": file_path,
+                    "class_name": cls["name"],
+                    "line_start": cls["line_start"],
+                    "line_end": cls["line_end"]
+                    # "calls_json": json.dumps(method.get("calls", []))
+                }
+            }
+            chunks.append(class_chunk)
+    return chunks if len(chunks) else []
+
+
 def get_all_chunks(path: str) -> list[dict]:
-    global count_meya
+    """
+    Функция для получения всех чанков
+    Args:
+       path: путь к архиву
+    Returns:
+        list[dict]: список словарей чанков
+    """
     all_project_chunks = []
     project_call_stack = {}
 
@@ -135,17 +203,20 @@ def get_all_chunks(path: str) -> list[dict]:
 
                     global_chunk = create_global_chunk(metadata)
                     atomic_chunks = create_chunks(metadata)
+                    class_chunks = create_class_chunks(metadata)
 
                     if global_chunk:
                         all_project_chunks.extend(global_chunk)
                     if atomic_chunks:
                         all_project_chunks.extend(atomic_chunks)
+                    if class_chunks:
+                        all_project_chunks.extend(class_chunks)
 
                     call_stack_node = get_call_stack_node(metadata)
                     project_call_stack.update(call_stack_node)
 
                 except Exception as e:
-                    pass
+                    print(e.with_traceback())
 
     try:
         with open('call_stack.json', 'w', encoding='utf-8') as f:
