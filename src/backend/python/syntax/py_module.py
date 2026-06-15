@@ -6,6 +6,7 @@ from .py_class import PyClass, parse_class
 from .py_function import PyFunction, parse_function
 from .py_import import PyImport, parse_imports
 from .py_resolver import TopLevelCallVisitor
+from .py_code import PyCode, parse_code
 
 
 @dataclass
@@ -45,7 +46,7 @@ class PyModule:
     functions: list[PyFunction] = field(default_factory=list)
     classes: list[PyClass] = field(default_factory=list)
     calls: list[dict] = field(default_factory=list)
-    top_level_code: list[dict] = field(default_factory=list)
+    top_level_code: list[PyCode] = field(default_factory=list)
 
     def add_import(self, i: PyImport):
         self.imports.append(i)
@@ -62,7 +63,7 @@ class PyModule:
     def add_class(self, c: PyClass):
         self.classes.append(c)
 
-    def add_top_level_code(self, code_block: dict):
+    def add_top_level_code(self, code_block: PyCode):
         self.top_level_code.append(code_block)
 
 
@@ -117,10 +118,6 @@ def parse_module(path: str, content: bytes) -> PyModule:
             if isinstance(item, ast.Expr) and isinstance(item.value, ast.Call):
                 continue
 
-            mod.add_top_level_code({
-                "line_start": str(getattr(item, "lineno", "")),
-                "line_end": str(getattr(item, "end_lineno", "")),
-                "code": ast.unparse(item)
-            })
+            mod.add_top_level_code(parse_code(item))
 
     return mod

@@ -1,4 +1,5 @@
 import ast
+import copy
 from dataclasses import dataclass, field
 
 from .py_colon_pair import PyColonPair, parse_colon_pair
@@ -66,13 +67,6 @@ class PyClass(PositionMeta, AnnotatedMeta, BodyMeta):
 #########################################################################
 
 def parse_class(ast_node: ast.ClassDef) -> PyClass:
-    """
-    Парсит указанный узел в `PyClass`.
-    Узел должен представлять собой класс (`ast.ClassDef`).
-
-    :param ast_node: Узел
-    :return: PyClass с вызванным методом PyClass.propagate_self_type
-    """
     name = ast_node.name
 
     line_start = ast_node.lineno
@@ -81,16 +75,24 @@ def parse_class(ast_node: ast.ClassDef) -> PyClass:
     col_end = ast_node.end_col_offset
 
     doc = ast.get_docstring(ast_node)
-    """
-    Сохраняем полностью ноду с сигнатурой
-    """
-    body = ast.unparse(ast_node)
-    """
-    :TODO добавить внешний код классы
-    """
+
+    class_node_copy = copy.deepcopy(ast_node)
+
+    class_level_body = [
+        node for node in class_node_copy.body
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    ]
+
+    if not class_level_body:
+        class_level_body.append(ast.Pass())
+
+    class_node_copy.body = class_level_body
+
+    body = ast.unparse(class_node_copy)
 
     extracted_calls = []
-    for child in ast.walk(ast_node):
+
+    for child in ast.walk(class_node_copy):
         if isinstance(child, ast.Call):
             call_name = resolve_call_name(child.func)
             extracted_calls.append({
@@ -110,17 +112,13 @@ def parse_class(ast_node: ast.ClassDef) -> PyClass:
         calls=extracted_calls
     )
 
-    # Собираем поля класса и его методы
     for item in ast_node.body:
         if isinstance(item, ast.AnnAssign):
             cls.add_field(parse_colon_pair(item))
-        elif isinstance(item, ast.FunctionDef | ast.AsyncFunctionDef):
-
+        elif isinstance(item, (ast.FunctionDef, ast.AsyncFunctionDef)):
             if item.name == "__init__":
                 cls.constructor = parse_function(item, class_name=cls.name)
             else:
                 cls.add_method(parse_function(item, class_name=cls.name))
-        else:
-            continue
 
     return cls
