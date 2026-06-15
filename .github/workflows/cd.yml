@@ -8,6 +8,9 @@ jobs:
   deploy:
     runs-on: self-hosted
     steps:
+      - name: Create .env file directly in deploy folder
+        run: |
+          echo "${{ secrets.ENV_FILE }}" > /opt/codebase/src/backend/.env
       - name: Get code
         run: cd /opt/codebase && git pull && git checkout dev
 
