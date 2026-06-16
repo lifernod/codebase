@@ -29,7 +29,7 @@ Response format:
 {{"answer": "Your answer to the user", "faithfulness": 0-10, "relevance": 0-10}}
 """.strip()
 
-def format_user_promt(query: str, chunks: List[Dict[str, str]]) -> str:
+def format_user_prompt(query: str, chunks: List[Dict[str, str]]) -> str:
     return f"User query: {query}\nChunks: {dumps(chunks, indent=2, ensure_ascii=False)}"
 
 async def get_llm_response(client:AsyncClient, query: str, chunks: List[Dict[str, str]]) -> Dict[str, str|int]:
@@ -59,7 +59,7 @@ async def get_llm_response(client:AsyncClient, query: str, chunks: List[Dict[str
         },
         {
             "role": "user",
-            "content": format_user_promt(query, chunks)
+            "content": format_user_prompt(query, chunks)
         }
     ],
     "response_format": {"type": "json_object"},
