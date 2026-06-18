@@ -1,10 +1,35 @@
-import os
+import logging
+from pathlib import Path
+from dataclasses import dataclass
 import json
 from ..utils.as_str_dict import as_str_dict
 from ..syntax.py_module import parse_module
 
 
-def create_global_chunk(module_data: list[dict]) -> list[dict]:
+@dataclass
+class Chunk:
+    """
+        Содержимое чанка:
+        id (str) - уникальный id чанка
+        chunk (str) - сам чанк
+        metadata (dict[str]) - метаданные чанка
+    """
+    id: str
+    chunk: str
+    metadata: dict[str, str]
+
+    """Красивый вывод в консоль через JSON"""
+    def __str__(self):
+        dict_chunk = {
+            "id": self.id,
+            "chunk": self.chunk,
+            "metadata": self.metadata,
+        }
+
+        return json.dumps(dict_chunk, indent=4, ensure_ascii=False)
+
+
+def create_global_chunk(module_data: list[dict]) -> list[Chunk]:
     """
     Функция для создания глобальных чанков модулей
     Args:
@@ -50,21 +75,20 @@ def create_global_chunk(module_data: list[dict]) -> list[dict]:
     #     for c in module_data["classes"]:
     #         global_text_parts.append(f"Class {c['name']}")
 
-    global_chunk = {
-        "id": f"{file_path}:global",
-        "chunk": "\n".join(global_text_parts),
-        "metadata": {
+    global_chunk = Chunk(
+        id=f"{file_path}:global",
+        chunk="\n".join(global_text_parts),
+        metadata={
             "chunk_type": "global_module",
             "path": file_path,
             "doc": module_data["doc"]
-            # "calls_json": json.dumps(module_data.get("calls", []))  # Храним граф вызовов в метаданных
         }
-    }
+    )
     chunks.append(global_chunk)
     return chunks
 
 
-def create_chunks(module_data: list[dict]) -> list[str]:
+def create_chunks(module_data: list[dict]) -> list[Chunk]:
     """
     Функция для создания чанков из функций/методов
     Args:
@@ -83,10 +107,10 @@ def create_chunks(module_data: list[dict]) -> list[str]:
             f"# Code:\n{func['body_str']}"
         )
 
-        func_chunk = {
-            "id": f"{file_path}:function:{func['name']}:{func['line_start']}",
-            "chunk": func_text,
-            "metadata": {
+        func_chunk = Chunk(
+            id=f"{file_path}:function:{func['name']}:{func['line_start']}",
+            chunk=func_text,
+            metadata={
                 "doc": func["doc"],
                 "chunk_type": "function",
                 "path": file_path,
@@ -94,9 +118,8 @@ def create_chunks(module_data: list[dict]) -> list[str]:
                 "line_start": func["line_start"],
                 "line_end": func["line_end"],
                 "is_async": str(func["is_async"])
-                # "calls_json": json.dumps(func.get("calls", []))  # Вызовы внутри конкретной функции
             }
-        }
+        )
         chunks.append(func_chunk)
 
     for c in module_data.get("classes", []):
@@ -113,10 +136,10 @@ def create_chunks(module_data: list[dict]) -> list[str]:
 
             chunk_id = f"{file_path}:{class_name}:methodс:{method['name']}:{method['line_start']}"
 
-            method_chunk = {
-                "id": chunk_id,
-                "chunk": method_text,
-                "metadata": {
+            method_chunk = Chunk(
+                id=chunk_id,
+                chunk=method_text,
+                metadata={
                     "doc": method.get("doc", "None"),
                     "chunk_type": "method",
                     "path": file_path,
@@ -125,9 +148,8 @@ def create_chunks(module_data: list[dict]) -> list[str]:
                     "line_start": method["line_start"],
                     "line_end": method["line_end"],
                     "is_async": str(method["is_async"]),
-                    # "calls_json": json.dumps(method.get("calls", []))
                 }
-            }
+            )
             chunks.append(method_chunk)
     return chunks
 
@@ -161,70 +183,64 @@ def create_class_chunks(module_data: list[dict]) -> list[str]:
 
             chunk_id = f"{file_path}:{cls["name"]}:{cls['line_start']}"
 
-            class_chunk = {
-                "id": chunk_id,
-                "chunk": class_text,
-                "metadata": {
+            class_chunk = Chunk(
+                id=chunk_id,
+                chunk=class_text,
+                metadata={
                     "doc": cls.get("doc", "None"),
                     "chunk_type": "class",
                     "path": file_path,
                     "class_name": cls["name"],
                     "line_start": cls["line_start"],
                     "line_end": cls["line_end"]
-                    # "calls_json": json.dumps(method.get("calls", []))
                 }
-            }
+            )
             chunks.append(class_chunk)
     return chunks if len(chunks) else []
 
 
-def get_all_chunks(path: str) -> list[dict]:
+def get_all_chunks_of_file(path: Path) -> list[Chunk]:
     """
-    Функция для получения всех чанков
+    Функция для получения всех чанков модуля
     Args:
-       path: путь к архиву
+       path: путь к файлу
     Returns:
         list[dict]: список словарей чанков
     """
-    all_project_chunks = []
-    project_call_stack = {}
-
-    for root, dirs, files in os.walk(path):
-        for file in files:
-            if file.endswith('.py'):
-                file_path = os.path.join(root, file)
-
-                try:
-                    with open(file_path, 'rb') as f:
-                        content = f.read()
-
-                    module = parse_module(file_path, content)
-                    metadata = as_str_dict(module)
-
-                    global_chunk = create_global_chunk(metadata)
-                    atomic_chunks = create_chunks(metadata)
-                    class_chunks = create_class_chunks(metadata)
-
-                    if global_chunk:
-                        all_project_chunks.extend(global_chunk)
-                    if atomic_chunks:
-                        all_project_chunks.extend(atomic_chunks)
-                    if class_chunks:
-                        all_project_chunks.extend(class_chunks)
-
-                    call_stack_node = get_call_stack_node(metadata)
-                    project_call_stack.update(call_stack_node)
-
-                except Exception as e:
-                    print(e.with_traceback())
+    all_file_chunks = []
+    # project_call_stack = {}
 
     try:
-        with open('call_stack.json', 'w', encoding='utf-8') as f:
-            json.dump(project_call_stack, f, indent=4, ensure_ascii=False)
-    except Exception as e:
-        print(f"Ошибка при сохранении call_stack.json: {e}")
+        with open(path, 'rb') as f:
+            content = f.read()
 
-    return all_project_chunks
+        module = parse_module(path, content)
+        metadata = as_str_dict(module)
+
+        global_chunk = create_global_chunk(metadata)
+        atomic_chunks = create_chunks(metadata)
+        class_chunks = create_class_chunks(metadata)
+
+        if global_chunk:
+            all_file_chunks.extend(global_chunk)
+        if atomic_chunks:
+            all_file_chunks.extend(atomic_chunks)
+        if class_chunks:
+            all_file_chunks.extend(class_chunks)
+
+        # call_stack_node = get_call_stack_node(metadata)
+        # project_call_stack.update(call_stack_node)
+
+    except Exception as e:
+        logging.ERROR(e)
+
+    # try:
+    #     with open('call_stack.json', 'w', encoding='utf-8') as f:
+    #         json.dump(project_call_stack, f, indent=4, ensure_ascii=False)
+    # except Exception as e:
+    #     logging.ERROR(f"Ошибка при сохранении call_stack.json: {e}")
+    #
+    return all_file_chunks
 
 
 def get_call_stack_node(module_data: dict) -> dict:

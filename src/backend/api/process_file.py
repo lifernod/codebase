@@ -1,7 +1,8 @@
 from pathlib import Path
+from python.utils.chunker import *
 
 
-def process_file(path: Path) -> bool:
+def process_file(path: Path) -> list[Chunk]:
     """
     Обрабатывает файл по входящему пути.
     :param path: Путь до .py файла
@@ -12,8 +13,4 @@ def process_file(path: Path) -> bool:
         errors="ignore"
     )
 
-    # TODO: Заменить вызов
-    # metadata = prepare_metadata()
-    # chunk = prepare_chunk_for_database(metadata)
-    # return chunk
-    return True
+    return get_all_chunks_of_file(path)

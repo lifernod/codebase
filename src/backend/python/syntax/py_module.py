@@ -1,6 +1,6 @@
 import ast
 from dataclasses import dataclass, field
-
+from pathlib import Path
 from .py_assign import PyAssign, parse_assign
 from .py_class import PyClass, parse_class
 from .py_function import PyFunction, parse_function
@@ -38,7 +38,7 @@ class PyModule:
         )
     """
 
-    path: str
+    path: Path
     doc: str | None = field(default=None)
 
     imports: list[PyImport] = field(default_factory=list)
@@ -71,7 +71,7 @@ class PyModule:
 ## Parsers
 #########################################################################
 
-def parse_module(path: str, content: bytes) -> PyModule:
+def parse_module(path: Path, content: bytes) -> PyModule:
     """
     Парсит входной код в `PyModule`.
 
