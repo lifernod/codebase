@@ -1,0 +1,269 @@
+.block-container {
+    padding-top: 30vh;
+    width: 45vw !important;
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+    padding-bottom: 250px !important;
+}
+
+[data-testid="stMainBlockContainer"] {
+    max-width: 100% !important;
+}
+
+button[data-testid="stExpandSidebarButton"],
+button[data-testid="stExpandSidebarButton"] *,
+button[data-testid="stExpandSidebarButton"] svg,
+button[data-testid="stExpandSidebarButton"] svg path,
+
+
+
+button[data-testid="stSidebarCollapseButton"],
+button[data-testid="stSidebarCollapseButton"] *,
+button[data-testid="stSidebarCollapseButton"] svg,
+button[data-testid="stSidebarCollapseButton"] svg path,
+
+
+
+[data-testid="stSidebarCollapseButton"],
+[data-testid="stSidebarCollapseButton"] *,
+[data-testid="collapsedControl"],
+[data-testid="collapsedControl"] * {
+    color: #FFFFFF !important;
+    fill: #FFFFFF !important;
+    stroke: #FFFFFF !important;
+
+}
+
+.centered-title {
+    text-align: center;
+    font-size: 32pt;
+    font-family: sans-serif;
+    font-weight: 500;
+    color: #E0E0E0;
+    margin-bottom: 30px;
+}
+
+
+
+
+
+
+
+section[data-testid="stSidebar"] {
+    background: radial-gradient(circle at 100% 73%, #4b29c9 10%, #8e75e8 45%, #c3733a 95%) !important;
+    box-shadow: 0 4px 7px 0 rgba(255, 255, 255, 0.25) !important;
+    width: 240px !important;
+}
+
+[data-testid="stSidebar"] .stButton:hover + .menu-item-wrapper {
+    opacity: 0.7;
+}
+
+.menu-item-wrapper svg {
+    flex-shrink: 0;
+    width: 30px;
+    height: auto;
+}
+
+
+[data-testid="stSidebarNav"], [data-testid="stSidebarResizer"] { display: none !important; }
+
+section[data-testid="stSidebar"] {
+    background: radial-gradient(circle at 100% 73%, #4b29c9 10%, #8e75e8 45%, #c3733a 95%) !important;
+    width: 240px !important;
+}
+
+.custom-sidebar-menu { display: flex; flex-direction: column; gap: 20px; }
+
+.menu-item-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: #F5F5F5;
+    font-family: sans-serif;
+    font-size: 20pt;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+[data-testid="stSidebar"] .stButton {
+    position: absolute;
+    margin-top: -65px;
+    width: 200px;
+    height: 60px;
+    opacity: 0;
+    z-index: 10;
+    cursor: pointer;
+}
+
+
+
+
+
+
+
+
+
+
+div[data-testid="stTextAreaRootElement"],
+div[data-baseweb="base-input"],
+div[data-baseweb="base-input"] > div {
+    border: none !important;
+    box-shadow: none !important;
+    background-color: transparent !important;
+    outline: none !important;
+}
+
+
+div[data-baseweb="base-input"]:hover,
+div[data-baseweb="base-input"]:focus-within,
+div[data-baseweb="base-input"] textarea:hover,
+div[data-baseweb="base-input"] textarea:focus {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+
+
+div[data-baseweb="base-input"] textarea {
+    background-color: #2C2C2A !important;
+    color: #E0E0E0 !important;
+    border: 1px solid #3B3B38 !important;
+    border-radius: 20px !important;
+    padding: 12px 16px !important;
+    font-size: 20pt !important;
+    font-family: sans-serif !important;
+    resize: none !important;
+    box-sizing: border-box !important;
+    transition: none !important;
+    height: 150px !important;
+}
+
+
+
+div[data-baseweb="base-input"] textarea::placeholder {
+    color: #97958C !important;
+    font-size: 20pt !important;
+}
+
+/* Растягиваем кнопку и задаем ей нужные параметры */
+[data-testid="stBaseButton-secondary"] {
+    background-color: #2C2C2A !important; /* Цвет фона */
+    height: 150px !important;            /* Высота 120px */
+    width: 100% !important;              /* Растягиваем по ширине колонки */
+    border: 1px solid #3B3B38 !important; /* Добавляем рамку, чтобы она сочеталась с input */
+    border-radius: 20px !important;       /* Закругление углов */
+    color: #E0E0E0 !important;            /* Цвет текста/иконки */
+}
+
+/* Убираем эффект наведения, если он вам не нужен (или настройте его) */
+[data-testid="stBaseButton-secondary"]:hover {
+    background-color: #3B3B38 !important;
+    color: #FFFFFF !important;
+    border: 1px solid #555555 !important;
+}
+
+/* Центрируем иконку внутри кнопки */
+[data-testid="stBaseButton-secondary"] div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24pt; /* Увеличиваем размер иконки, если нужно */
+}
+
+
+
+
+
+
+
+
+
+
+
+.user-message {
+    text-align: right;
+    background-color: #161616;
+    padding: 20px;
+    border-radius: 15px;
+    display: inline-block;
+    float: right;
+    margin-bottom: 5px;
+    font-size: 20pt;
+    color: #E0E0E0;
+    max-width: 70%;
+}
+
+
+
+.bot-message {
+    text-align: left;
+    background-color: transparent;
+    border-radius: 15px;
+    padding: 10px;
+    display: inline-block;
+    float: left;
+    font-size: 20pt;
+    color: #E0E0E0;
+    max-width: 70%;
+}
+
+
+
+/* Переопределение стандартных контейнеров Streamlit */
+[data-testid="stChatMessage"] {
+    display: block !important;
+    width: 100% !important;
+    background: none !important;
+}
+
+
+
+/* Скрываем родительские контейнеры аватарок */
+[data-testid="stChatMessageAvatarUser"],
+[data-testid="stChatMessageAvatarAssistant"] {
+    display: none !important;
+}
+
+
+
+/* Расширяем область контента сообщения, чтобы оно заняло место скрытых аватарок */
+[data-testid="stChatMessageContent"] {
+    margin-left: 0 !important;
+    width: 100% !important;
+    flex: 1 1 0% !important;
+}
+
+
+
+/* Дополнительно гарантируем, что Flex-контейнер сообщения корректно растягивается */
+[data-testid="stChatMessage"] {
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+
+
+
+
+/* 1. Базовое состояние: сайдбар ЗАКРЫТ (поле встает строго по центру экрана) */
+div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .chat-input-anchor) {
+    position: fixed;
+    bottom: 0;
+
+    left: 50%;
+    transform: translateX(-50%);
+
+    z-index: 1000;
+    width: 45vw;
+    padding-bottom: 2rem;
+    padding-top: 1rem;
+    background-color: #1F1F1E;
+
+    transition: left 0.3s ease;
+}
+
+body:has([data-testid="stSidebar"][aria-expanded="true"]) div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .chat-input-anchor) {
+    left: calc(50% + 120px);
+}
