@@ -3,7 +3,7 @@ from chromadb.utils import embedding_functions
 import sqlite3
 import time
 from pathlib import Path
-from ..backend.python.utils.chunker import get_all_chunks
+from src.backend.python.utils.chunker import get_all_chunks
 from .bm25_retriever import *
 from .embedder import F2LLMEmbeddingFunction
 
