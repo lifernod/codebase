@@ -15,4 +15,4 @@ jobs:
         run: cd /opt/codebase && git pull && git checkout dev
 
       - name: Start services
-        run: cd /opt/codebase && docker compose --profile full up -d
+        run: cd /opt/codebase && docker compose up -d --build
