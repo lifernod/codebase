@@ -18,6 +18,10 @@ jobs:
       - name: Start services
         run: docker compose up -d --wait
 
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose logs
+
       - name: Cleanup
         if: always()
         run: docker compose down
