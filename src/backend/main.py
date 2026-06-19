@@ -11,7 +11,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException, Depends
 
 from api.parse_archive import process_archive
 from api.types.process_response import ProcessResponse
-from backend.ml.answer import get_llm_response
+from ml.answer import get_llm_response
 
 #########################################################################
 ## Настройка https.AsyncClient
