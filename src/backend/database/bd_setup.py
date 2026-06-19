@@ -3,15 +3,13 @@ from chromadb.utils import embedding_functions
 import sqlite3
 import time
 from pathlib import Path
-from src.backend.python.utils.chunker import get_all_chunks
+from python.utils.chunker import get_all_chunks
 from .bm25_retriever import *
 from .embedder import F2LLMEmbeddingFunction
 
 ef = F2LLMEmbeddingFunction()
 
-DATA_DIR = Path(__file__).parent.parent.parent / "data"
-
-chroma_client = chromadb.PersistentClient(path=str(DATA_DIR / "chroma"))
+chroma_client = chromadb.PersistentClient(path=str(Path(__file__).parent.parent / "data" / "chroma"))
 
 collection = chroma_client.get_or_create_collection(
     name="codebase",
