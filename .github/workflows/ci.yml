@@ -20,7 +20,7 @@ jobs:
           echo "${{ secrets.ENV_FILE }}" > src/backend/.env
 
       - name: Start services
-        run: docker compose up -d --wait
+        run: docker compose up -d --build --wait
 
       - name: Show logs on failure
         if: failure()
