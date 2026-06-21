@@ -5,7 +5,7 @@ from .process_file import process_file
 from itertools import chain
 
 
-async def process_archive(extract_dir: Path) -> list[Chunk]:
+async def process_archive(extract_dir: Path) -> tuple[int, list[Chunk]]:
     """
     Обрабатывает .py файлы в архиве по указанному пути.
     :param extract_dir: Путь до разархивированных файлов
@@ -19,7 +19,7 @@ async def process_archive(extract_dir: Path) -> list[Chunk]:
         if not should_skip(p)
     ]
 
-    return list(chain.from_iterable(process_file(f) for f in py_files))
+    return (len(py_files), list(chain.from_iterable(process_file(f) for f in py_files)))
 
 #########################################################################
 ## Utils

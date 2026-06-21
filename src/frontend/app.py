@@ -1,30 +1,35 @@
 import streamlit as st
-import requests
-import time
+from utils import load_css, render_sidebar
 
-# Настройка страницы
-st.set_page_config(page_title="Backend Status", layout="centered")
+st.set_page_config(page_title="Главная", layout="centered", initial_sidebar_state="expanded")
+load_css("style.css")
 
-# Функция проверки здоровья бэкенда
-def check_health():
-    url = "http://backend:8000/api/ping"
-    try:
-        # Устанавливаем таймаут 2 секунды, чтобы интерфейс не зависал
-        response = requests.get(url, timeout=2)
-        return response.status_code
-    except requests.exceptions.RequestException:
-        return None
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-# Блок отображения статуса
-status_code = check_health()
+render_sidebar()
 
-if status_code == 200:
-    st.success(f"### Backend {status_code}")
-elif status_code is not None:
-    st.error(f"### Backend {status_code}")
-else:
-    st.error("### Backend Offline (Нет ответа)")
+st.markdown("<div class='centered-title'>Чем займемся сегодня?</div>", unsafe_allow_html=True)
 
-# Автоматическое обновление страницы каждые 2 секунды
-time.sleep(2)
-st.rerun()
+col1, col2, col3 = st.columns([1, 10, 1])
+
+with col2:
+    input_col, btn_col = st.columns([0.9, 0.1])
+
+    with input_col:
+        st.text_area(
+            "Label",
+            placeholder="Задайте вопрос, и получите ответ",
+            label_visibility="collapsed",
+            key="my_chat_input"
+        )
+
+    with btn_col:
+        if st.button("➤"):
+            #Вот тут вызываем нейросеть
+            if st.session_state.my_chat_input:
+                st.session_state.messages.append({"role": "user", "content": st.session_state.my_chat_input})
+                st.session_state.messages.append(
+                    {"role": "assistant", "content": "Привет! Я получил твое сообщение в чате."}
+                )
+                st.switch_page("pages/chat.py")

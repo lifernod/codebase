@@ -1,0 +1,466 @@
+/* =====================================================================
+   CODELENS — GLOBAL STYLES
+   Streamlit v1.58
+   ===================================================================== */
+
+
+/* ---------------------------------------------------------------------
+   1. APP SHELL — фон страницы, хедер, базовый контейнер
+   --------------------------------------------------------------------- */
+
+.stApp {
+    background-color: #1F1F1E !important;
+}
+
+/* Хедер Streamlit — не скрываем целиком (там же живёт кнопка
+   сворачивания/разворачивания сайдбара), а только убираем фон
+   и кнопку Deploy с меню, оставляя сам header функциональным. */
+header[data-testid="stHeader"] {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+/* Прячем именно кнопку Deploy и троеточие-меню — точечно, без
+   .stToolbar (этот класс шире, чем кажется, и захватывал заодно
+   кнопку сворачивания сайдбара). */
+[data-testid="stMainMenu"] {
+    display: none !important;
+}
+
+[data-testid="stDeployButton"],
+[data-testid="stAppDeployButton"],
+.stAppDeployButton,
+header[data-testid="stHeader"] button[title*="Deploy"],
+header[data-testid="stHeader"] button[aria-label*="Deploy"] {
+    display: none !important;
+}
+
+/*Контент*/
+.block-container {
+    padding-top: 30vh;
+    width: 55vw !important;
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+    padding-bottom: 250px !important;
+}
+
+[data-testid="stMainBlockContainer"] {
+    max-width: 100% !important;
+}
+
+/* Страница архивов — отдельная раскладка: шире контейнер, меньше
+   отступ сверху, т.к. там карточки/таблица, а не центрированный чат */
+body:has(a[data-testid="stSidebarNavLink"][aria-current="page"][href*="archive"]) .block-container {
+    width: 85vw !important;
+    padding-top: 5vh !important;
+    padding-bottom: 50px !important;
+}
+
+/* Страница метрик — та же логика: KPI-карточки и графики занимают
+   весь viewport, а не центрированную узкую колонку чата */
+body:has(a[data-testid="stSidebarNavLink"][aria-current="page"][href*="metrics"]) .block-container {
+    width: 85vw !important;
+    padding-top: 5vh !important;
+    padding-bottom: 50px !important;
+}
+
+
+/* ---------------------------------------------------------------------
+   2. SIDEBAR — градиент, меню, кнопки сворачивания
+   --------------------------------------------------------------------- */
+
+section[data-testid="stSidebar"] {
+    background: radial-gradient(circle at 103% 73%, #4b29c9 10%, #8e75e8 45%, #eb7d2f 95%) !important;
+    box-shadow: 0 4px 7px 0 rgba(255, 255, 255, 0.25) !important;
+    width: 240px !important;
+}
+
+[data-testid="stSidebarNav"],
+[data-testid="stSidebarResizer"] {
+    display: none !important;
+}
+
+/* Кнопки сворачивания/разворачивания сайдбара — делаем белыми поверх градиента */
+button[data-testid="stExpandSidebarButton"],
+button[data-testid="stExpandSidebarButton"] *,
+button[data-testid="stExpandSidebarButton"] svg,
+button[data-testid="stExpandSidebarButton"] svg path,
+button[data-testid="stSidebarCollapseButton"],
+button[data-testid="stSidebarCollapseButton"] *,
+button[data-testid="stSidebarCollapseButton"] svg,
+button[data-testid="stSidebarCollapseButton"] svg path,
+[data-testid="stSidebarCollapseButton"],
+[data-testid="stSidebarCollapseButton"] *,
+[data-testid="collapsedControl"],
+[data-testid="collapsedControl"] * {
+    color: #FFFFFF !important;
+    fill: #FFFFFF !important;
+    stroke: #FFFFFF !important;
+}
+
+/* Меню навигации (Чат / Метрики / Архивы) */
+.custom-sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.menu-item-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: #F5F5F5;
+    font-family: helvetica;
+    font-size: 18pt;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.menu-item-wrapper svg {
+    flex-shrink: 0;
+    width: 30px;
+    height: auto;
+}
+
+[data-testid="stSidebar"] .stButton:hover + .menu-item-wrapper {
+    opacity: 0.7;
+}
+
+/* Невидимая кнопка-кликер поверх каждого пункта меню */
+[data-testid="stSidebar"] .stButton {
+    position: absolute;
+    margin-top: -65px;
+    width: 200px;
+    height: 60px;
+    opacity: 0;
+    z-index: 10;
+    cursor: pointer;
+}
+
+
+/* ---------------------------------------------------------------------
+   3. ГЛАВНАЯ СТРАНИЦА — заголовок "Чем займёмся сегодня?"
+   --------------------------------------------------------------------- */
+
+.centered-title {
+    text-align: center;
+    font-size: 32pt;
+    font-family: helvetica;
+    font-weight: 500;
+    color: #E0E0E0;
+    margin-bottom: 30px;
+}
+
+
+/* ---------------------------------------------------------------------
+   4. ПОЛЕ ВВОДА ЧАТА (textarea + кнопка отправки)
+   --------------------------------------------------------------------- */
+
+div[data-testid="stTextAreaRootElement"],
+div[data-baseweb="base-input"],
+div[data-baseweb="base-input"] > div {
+    border: none !important;
+    box-shadow: none !important;
+    background-color: transparent !important;
+    outline: none !important;
+}
+
+div[data-baseweb="base-input"]:hover,
+div[data-baseweb="base-input"]:focus-within,
+div[data-baseweb="base-input"] textarea:hover,
+div[data-baseweb="base-input"] textarea:focus {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+div[data-baseweb="base-input"] textarea {
+    background-color: #2C2C2A !important;
+    color: #E0E0E0 !important;
+    border: 1px solid #3B3B38 !important;
+    border-radius: 20px !important;
+    padding: 12px 16px !important;
+    font-size: 20pt !important;
+    font-family: helvetica !important;
+    resize: none !important;
+    box-sizing: border-box !important;
+    transition: none !important;
+    height: 150px !important;
+}
+
+div[data-baseweb="base-input"] textarea::placeholder {
+    color: #97958C !important;
+    font-size: 20pt !important;
+}
+
+/* Кнопка отправки рядом с textarea */
+[data-testid="stBaseButton-secondary"] {
+    background-color: #2C2C2A !important;
+    height: 150px !important;
+    width: 100% !important;
+    border: 1px solid #3B3B38 !important;
+    border-radius: 20px !important;
+    color: #E0E0E0 !important;
+}
+
+[data-testid="stBaseButton-secondary"]:hover {
+    background-color: #3B3B38 !important;
+    color: #FFFFFF !important;
+    border: 1px solid #555555 !important;
+}
+
+[data-testid="stBaseButton-secondary"] div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24pt;
+}
+
+/* Закрепление инпута внизу экрана на странице чата, со сдвигом при
+   открытом сайдбаре. Внешний блок — на всю ширину (для центрирования
+   через margin auto во внутреннем), внутренний — ограничен по ширине. */
+div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .chat-input-anchor) {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    width: 100vw;
+    padding-bottom: 2rem;
+    padding-top: 1rem;
+    background-color: #1F1F1E;
+    transition: left 0.3s ease;
+}
+
+div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .chat-input-anchor) > div {
+    max-width: 45vw;
+    width: 100%;
+    margin: 0 auto;
+}
+
+body:has([data-testid="stSidebar"][aria-expanded="true"]) div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .chat-input-anchor) {
+    left: calc(50% + 120px);
+}
+
+
+/* ---------------------------------------------------------------------
+   5. СООБЩЕНИЯ ЧАТА (user / bot bubbles)
+   --------------------------------------------------------------------- */
+
+.user-message {
+    text-align: right;
+    background-color: #161616;
+    padding: 20px;
+    border-radius: 15px;
+    display: inline-block;
+    float: right;
+    margin-bottom: 5px;
+    font-size: 20pt;
+    color: #E0E0E0;
+    max-width: 70%;
+}
+
+.bot-message {
+    text-align: left;
+    background-color: transparent;
+    border-radius: 15px;
+    padding: 10px;
+    display: inline-block;
+    float: left;
+    font-size: 20pt;
+    color: #E0E0E0;
+    max-width: 70%;
+}
+
+/* Переопределение стандартных контейнеров st.chat_message */
+[data-testid="stChatMessage"] {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    background: none !important;
+}
+
+[data-testid="stChatMessageAvatarUser"],
+[data-testid="stChatMessageAvatarAssistant"] {
+    display: none !important;
+}
+
+[data-testid="stChatMessageContent"] {
+    margin-left: 0 !important;
+    width: 100% !important;
+    flex: 1 1 0% !important;
+}
+
+
+/* ---------------------------------------------------------------------
+   6. СТРАНИЦА МЕТРИК — заголовок, KPI-карточки, графики
+   --------------------------------------------------------------------- */
+
+.page-heading {
+    font-size: 32pt;
+    font-weight: 500;
+    color: #d8d8e0;
+    letter-spacing: -0.3px;
+    margin: 8px 0 24px;
+}
+
+/* KPI-карточки (Precision@5 / Avg Latency / Indexed Files) */
+.metric-box {
+    background: #1A1A19;
+    border: 1px solid #2e2e30;
+    border-radius: 14px;
+    padding: 18px 20px;
+    height: 100%;
+}
+
+.metric-box-label {
+    font-size: 15pt;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    color: #8a8a92;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+.metric-box-value {
+    font-size: 15pt;
+    font-weight: 600;
+    line-height: 1.1;
+    margin-bottom: 6px;
+}
+
+.metric-green  { color: #4ade80; }
+.metric-blue   { color: #7da8f0; }
+.metric-purple { color: #a78bfa; }
+
+.metric-box-sub {
+    font-size: 14pt;
+    color: #6e6e76;
+}
+
+/* Карточки с графиками (bar chart / line chart) */
+.chart-card {
+    background: #1A1A19;
+    border: 1px solid #2e2e30;
+    border-radius: 14px;
+    padding: 18px 20px 8px;
+    height: 100%;
+}
+
+.chart-card-title {
+    font-size: 15pt;
+    font-weight: 500;
+    color: #d0d0d6;
+    margin-bottom: 14px;
+}
+
+/* Фон самого графика Vega-Lite — растворяем в фоне карточки.
+   Перекрашиваем canvas/svg вглубь, т.к. transparent на обёртке
+   не всегда пробивает то, что Vega-Lite рисует через JS. */
+.chart-card [data-testid="stVegaLiteChart"],
+.chart-card [data-testid="stVegaLiteChart"] > div,
+.chart-card .vega-embed,
+.chart-card .vega-embed canvas,
+.chart-card .vega-embed svg {
+    background-color: #1A1A19 !important;
+}
+
+/* Раскрывающийся блок "Подробная таблица по запросам" */
+[data-testid="stExpander"] {
+    background: #1A1A19;
+    border: 1px solid #2e2e30;
+    border-radius: 12px;
+}
+
+
+/* ---------------------------------------------------------------------
+   7. СТРАНИЦА АРХИВОВ — заголовок, карточки, drag&drop загрузчик
+   --------------------------------------------------------------------- */
+
+.archive-title {
+    font-size: 32pt;
+    color: #E0E0E0;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+
+/* Обычная информационная карточка (например, элемент списка архивов) */
+.custom-card {
+    background-color: #1A1A19;
+    border: 1px solid #3B3B38;
+    border-radius: 10px;
+    padding: 20px;
+    color: #FFF;
+    margin-bottom: 10px;
+}
+
+/* Визуальная карточка зоны загрузки — то, что видно глазами;
+   реальный file_uploader Стримлита прозрачно лежит поверх неё */
+.upload-visual-card {
+    box-shadow: 0 0 7px -1px rgba(255, 255, 255, 0.25);
+    background: radial-gradient(at 100% 100%, #4b29c9 0%, #8e75e8 50%, #c3733a 90%);
+    border: 1px dashed rgba(59, 56, 59, 0.72);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 220px;
+    transition: opacity 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    margin-bottom: 0px !important;
+}
+
+.tall-card {
+    min-height: 220px;
+    max-height: 100vh;
+}
+
+/* --- Прозрачный загрузчик поверх визуальной карточки --- */
+
+/* Делаем родительскую колонку относительной, чтобы привязать к ней uploader */
+div[data-testid="stColumn"]:has(.upload-visual-card) > div[data-testid="stVerticalBlock"] {
+    position: relative;
+    height: 220px;
+}
+
+/* Поднимаем системный File Uploader ровно поверх нашей карточки */
+div[data-testid="stColumn"]:has(.upload-visual-card) div[data-testid="stElementContainer"]:has([data-testid="stFileUploader"]) {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 220px;
+    z-index: 10;
+}
+
+/* Делаем виджет загрузки практически невидимым, но он по-прежнему
+   ловит клики и drag&drop */
+[data-testid="stFileUploader"] {
+    opacity: 0.001 !important;
+    height: 220px !important;
+    width: 100% !important;
+    cursor: pointer !important;
+}
+
+/* Растягиваем внутреннюю зону перетаскивания на всю карточку */
+[data-testid="stFileUploaderDropzone"] {
+    height: 220px !important;
+    width: 100% !important;
+    cursor: pointer !important;
+}
+
+/* Скрываем стандартный список загруженных файлов Streamlit,
+   чтобы он не ломал вёрстку под прозрачным uploader'ом */
+div[data-testid="stFileUploader"] ul,
+[data-testid="stUploadedFile"] {
+    display: none !important;
+}
+
+/* Ховер на визуальной карточке срабатывает только когда курсор
+   реально находится над прозрачной зоной загрузки (220px) */
+div[data-testid="stVerticalBlock"]:has([data-testid="stFileUploader"]:hover) .upload-visual-card {
+    opacity: 0.85;
+    transform: scale(0.98);
+    box-shadow: 0 0 15px 2px rgba(142, 117, 232, 0.4);
+}
