@@ -20,7 +20,7 @@ def render_sidebar():
                 st.switch_page(page)
 
         nav_btn("Чат", chat_svg, "pages/chat.py")
-        nav_btn("Метрики", metrics_svg, "pages/metrics.py")
-        nav_btn("Архивы", archives_svg, "pages/archives.py")
+        nav_btn("Метрики", metrics_svg, "/")
+        nav_btn("Архивы", archives_svg, "pages/archive.py")
 
         st.markdown('</div>', unsafe_allow_html=True)

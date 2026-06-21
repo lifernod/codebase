@@ -11,7 +11,7 @@ from fastapi import FastAPI, UploadFile, File, HTTPException, Depends
 
 from api.parse_archive import process_archive
 from api.types.process_response import ProcessResponse
-from backend.ml.answer import get_llm_response
+from ml.answer import get_llm_response
 
 #########################################################################
 ## Настройка https.AsyncClient
@@ -105,6 +105,7 @@ async def upload_archive(file: UploadFile = File(description="Архив с фа
 
         # processing_start = time.perf_counter()
         results = await process_archive(extract_dir)
+        """Сохранение в БД"""
         # processing_end = time.perf_counter()
 
     # work_end = time.perf_counter()
@@ -122,14 +123,16 @@ async def upload_archive(file: UploadFile = File(description="Архив с фа
     #     tablefmt="fancy_grid"
     # ))
 
-    total = len(results)
+    total = results[0]
+    chunks = len(results[1])
     ok = sum([1 for r in results if r])
     fail = total - ok
 
     return ProcessResponse(
         ok=ok,
         fail=fail,
-        total=total
+        total=total,
+        chunks=chunks
     )
 
 #########################################################################
