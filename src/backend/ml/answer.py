@@ -4,6 +4,9 @@ import os
 from dotenv import load_dotenv
 from httpx import AsyncClient
 
+from python.utils.ml import FinalAnswer
+from logging import info
+
 load_dotenv()
 
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
@@ -32,19 +35,19 @@ Response format:
 def format_user_prompt(query: str, chunks: List[Dict[str, str]]) -> str:
     return f"User query: {query}\nChunks: {dumps(chunks, indent=2, ensure_ascii=False)}"
 
-async def get_llm_response(client:AsyncClient, query: str, chunks: List[Dict[str, str]]) -> Dict[str, str|int]:
+async def get_llm_response(client:AsyncClient, query: str, chunks: List[Dict[str, str]]) -> FinalAnswer:
     """
     Отправляет запрос в OpenRouter API на получение финального ответа пользователю
 
     :param client: httpx.AsyncClient
     :param query: запрос пользователя
     :param chunks: список словарей чанков
-    :return: dict
-        {
-            "answer": ответ ллмки
-            "faithfulness": параметр от 0 до 10 насколько ответ основывается на чанках
-            "relevance": параметр от 0 до 10 насколько релевантен ответ
-        }
+    :return: FinalAnswer
+        answer: ответ ллмки
+        faithfulness: параметр от 0 до 10 насколько ответ основывается на чанках
+        relevance: параметр от 0 до 10 насколько релевантен ответ
+        precision: Precision@5 от 0 до 100, если query из списка заготовленных вопросов
+        recall: Recall@5 от 0 до 100, если query из списка заготовленных вопросов
     """
     url = "https://openrouter.ai/api/v1/chat/completions"
     headers = {
@@ -69,6 +72,23 @@ async def get_llm_response(client:AsyncClient, query: str, chunks: List[Dict[str
     }
     response = await client.post(url, headers=headers, json=payload)
     if response.status_code != 200:
-        return {"answer": "Сервис временно недоступен, попробуйте позже", "faithfulness": 0, "relevance": 0}
-    answer = response.json().get("choices")[0].get("message").get("content")
-    return loads(answer)
+        return FinalAnswer(answer = "Сервис временно недоступен, попробуйте позже", faithfulness = 0, relevance = 0)
+
+    # TODO:
+    # посчитать Recall@5 и Precision@5
+
+    try:
+        answer_json = loads(response.json().get("choices")[0].get("message").get("content"))
+    except Exception as e:
+        info(e, exc_info=True)
+        return FinalAnswer(
+            answer="Произошла ошибка генерации ответа, попробуйте позже.",
+            faithfulness=0,
+            relevance=0
+        )
+
+    return FinalAnswer(
+        answer = answer_json.get("answer", "Произошла ошибка генерации ответа"),
+        faithfulness = answer_json.get("faithfulness", 0),
+        relevance = answer_json.get("relevance", 0)
+    )
