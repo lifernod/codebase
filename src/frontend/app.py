@@ -26,10 +26,10 @@ with col2:
 
     with btn_col:
         if st.button("➤"):
-            #Вот тут вызываем нейросеть
-            if st.session_state.my_chat_input:
-                st.session_state.messages.append({"role": "user", "content": st.session_state.my_chat_input})
-                st.session_state.messages.append(
-                    {"role": "assistant", "content": "Привет! Я получил твое сообщение в чате."}
-                )
+            query = st.session_state.my_chat_input
+            if query:
+                # Главная страница не вызывает API сама — передаёт вопрос
+                # в чат, где он обрабатывается тем же путём, что и обычные
+                # сообщения (включая замер времени и метрики).
+                st.session_state.pending_first_query = query
                 st.switch_page("pages/chat.py")
