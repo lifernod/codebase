@@ -13,10 +13,12 @@ class Chunk:
         id (str) - уникальный id чанка
         chunk (str) - сам чанк
         metadata (dict[str]) - метаданные чанка
+        score (float | None) - оценка релевантности чанка для запроса от реранкера
     """
     id: str
     chunk: str
     metadata: dict[str, str]
+    score: float | None = None
 
     """Красивый вывод в консоль через JSON"""
     def __str__(self):
@@ -24,6 +26,7 @@ class Chunk:
             "id": self.id,
             "chunk": self.chunk,
             "metadata": self.metadata,
+            "score": self.score,
         }
 
         return json.dumps(dict_chunk, indent=4, ensure_ascii=False)
