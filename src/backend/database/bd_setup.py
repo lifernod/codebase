@@ -3,7 +3,7 @@ from chromadb.utils import embedding_functions
 import sqlite3
 import time
 from pathlib import Path
-from python.utils.chunker import get_all_chunks
+from python.utils.chunker import Chunk
 from .bm25_retriever import *
 from .embedder import F2LLMEmbeddingFunction
 
@@ -16,12 +16,12 @@ collection = chroma_client.get_or_create_collection(
     metadata={"hnsw:space": "cosine"}
 )
 
-def create_and_save_chunks_from_file(path: str):
+def create_and_save_chunks_from_file(chunks: list[Chunk]):
     '''
     Функция для создания чанков из папки проекта и их сохранения
     Пересоздаёт существующий набор чанков
     Args:
-        path: путь до папки с файлами проекта для обработки и сохранения (будет переработано для работы с выдаваемым распаковщиком текстом)
+        chunks: Список всех чанков архива
 
     Returns: не возвращает ничего
 
@@ -34,12 +34,11 @@ def create_and_save_chunks_from_file(path: str):
         metadata={"hnsw:space": "cosine"}
     )
 
-    chunks = get_all_chunks(path)
     print(f"Got chunks: {len(chunks)}")
 
-    ids = [i["id"] for i in chunks]
-    docs = [i["chunk"] for i in chunks]
-    metadatas = [i["metadata"] for i in chunks]
+    ids = [i.id for i in chunks]
+    docs = [i.chunk for i in chunks]
+    metadatas = [i.metadata for i in chunks]
 
     # Батчинг вместо одного вызова на все чанки
     batch_size = 16
@@ -63,15 +62,14 @@ def create_and_save_chunks_from_file(path: str):
     build_bm25_index(docs, metadatas)
     print("added to bm25")
 
-def get_chunks_by_query(vec_queries:list[str], bm25_query:str) -> list[dict]:
+def get_chunks_by_query(vec_queries:list[str], bm25_query:str) -> list[Chunk]:
     '''
     Функция для получения топ-5 чанков по каждому из 3-х (предполагаемо) запросов, собираемых из векторной бд и bm25
     Args:
         vec_queries: запросы векторной бд (предполагается 2 - прямой от пользователя и изменённый
         bm25_query: запрос к bm25, предполагается прямой от пользователя, но может быть и иной
 
-    Returns: список словарей-чанков с полями chunk_text и filepath
-
+    Returns: список чанков
     '''
     query_embeddings = ef.encode_queries(vec_queries)
     vec_results = collection.query(
@@ -83,13 +81,14 @@ def get_chunks_by_query(vec_queries:list[str], bm25_query:str) -> list[dict]:
 
     results = []
     for i in range(len(vec_results["ids"])):
+        ids = vec_results["ids"][i]
         docs = vec_results["documents"][i]
         metas = vec_results["metadatas"][i]
 
         for j in range(len(docs)):
-            results.append({"chunk_text":docs[j], "filepath":metas[j]["path"]})
+            results.append(Chunk(id=ids[j],chunk=docs[j], metadata=metas[j]))
 
     for i in range(len(bm25_results)):
-        results.append({"chunk_text":bm25_results[i]["code"], "filepath":bm25_results[i]["metadata"]["path"]})
+        results.append(Chunk(id=f"bm25_result_{i}",chunk=bm25_results[i]["code"], metadata=bm25_results[i]["metadata"]))
 
     return results
