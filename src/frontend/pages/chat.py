@@ -87,12 +87,6 @@ for message in st.session_state.messages:
                 )
 
 
-def continue_chat():
-    query = st.session_state.chat_page_input
-    send_query(query)
-    st.session_state.chat_page_input = ""
-
-
 input_container = st.container()
 
 with input_container:
@@ -101,13 +95,7 @@ with input_container:
     col1, col2, col3 = st.columns([1, 10, 1])
 
     with col2:
-        input_col, btn_col = st.columns([0.9, 0.1])
-        with input_col:
-            st.text_area(
-                "ChatInput",
-                placeholder="Напишите сообщение...",
-                label_visibility="collapsed",
-                key="chat_page_input"
-            )
-        with btn_col:
-            st.button("➤", on_click=continue_chat, key="chat_page_submit")
+        prompt = st.chat_input("Напишите сообщение...")
+        if prompt:
+            send_query(prompt)
+            st.rerun()
