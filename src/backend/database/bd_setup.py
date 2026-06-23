@@ -18,7 +18,7 @@ collection = chroma_client.get_or_create_collection(
 
 def save_chunks(chunks: list[Chunk]):
     '''
-    Функция для создания чанков из папки проекта и их сохранения.
+    Функция для сохранения чанков в векторную бд и bm25.
     Пересоздаёт существующий набор чанков
     Args:
         chunks: Список всех чанков архива
