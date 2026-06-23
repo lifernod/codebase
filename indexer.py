@@ -3,7 +3,7 @@ from pathlib import Path
 from sys import argv
 
 from src.backend.api.parse_archive import process_archive
-from src.backend.database.bd_setup import create_and_save_chunks_from_file
+from src.backend.database.bd_setup import save_chunks
 
 
 async def process_code():
@@ -20,7 +20,7 @@ async def process_code():
         exit(1)
 
     (count, chunks) = await process_archive(p)
-    create_and_save_chunks_from_file(chunks)
+    save_chunks(chunks)
     print(f"Работа завершена успешно: Сохранено чанков {count}")
 
 
