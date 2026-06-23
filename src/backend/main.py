@@ -10,8 +10,9 @@ from fastapi import FastAPI, UploadFile, File, HTTPException, Depends
 
 from api.process_codebase import process_codebase
 from ml.reranker import rerank_chunks
-from ml.answer import get_llm_response
+from ml.answer import LLMResponse, get_llm_response
 from database.bd_setup import save_chunks, get_chunks_by_query
+from api.types.process_response import UploadResponse
 
 #########################################################################
 ## Настройка https.AsyncClient
@@ -62,7 +63,9 @@ async def ping():
 ## Загрузка файлов
 #########################################################################
 @app.post("/api/upload", tags=["files"], summary="Загрузка и обработка архива с кодом.")
-async def upload_archive(file: UploadFile = File(description="Архив с файлами")) -> str:
+async def upload_archive(
+    file: UploadFile = File(description="Архив с файлами"),
+) -> UploadResponse:
     """
     Поддерживается только `.zip` архивы, а все файлы, кроме `.py` пропускаются (не обрабатываются).
     """
@@ -99,15 +102,16 @@ async def upload_archive(file: UploadFile = File(description="Архив с фа
         (count, chunks) = process_codebase(extract_dir)
         save_chunks(chunks)
 
-    return f"Успешно обработано чанков: {count}"
+    return UploadResponse(total=count, chunks=len(chunks))
 
 
 #########################################################################
 ## Вопрос
 #########################################################################
 @app.get("/api/ask", deprecated=True, summary="Ответ на вопрос пользователя")
-async def ask(q: str, client: httpx.AsyncClient = Depends(get_http_client)) -> str:
+async def ask(
+    q: str, client: httpx.AsyncClient = Depends(get_http_client)
+) -> LLMResponse:
     chunks = get_chunks_by_query([q], q)
     reranked_chunks = rerank_chunks(q, chunks)
-    answer = await get_llm_response(client=client, query=q, chunks=reranked_chunks)
-    return str(answer)
+    return await get_llm_response(client=client, query=q, chunks=reranked_chunks)
