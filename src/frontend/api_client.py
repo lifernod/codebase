@@ -16,12 +16,44 @@
 """
 
 import httpx
+import requests
+import logging
 
 API_BASE_URL = "http://localhost:8000"  # поменяй под свой адрес бэкенда
 
 ASK_ENDPOINT = f"{API_BASE_URL}/api/ask"
+UPLOAD_ENDPOINT = f"{API_BASE_URL}/api/upload"
 
 REQUEST_TIMEOUT = 30.0
+
+
+def upload_archive(files: dict):
+    try:
+        response = requests.post(UPLOAD_ENDPOINT, files=files)
+
+        if response.status_code == 200:
+            data = response.json()
+            if data.get("total", 0) == 0:
+                logging.error("В архиве нет .py файлов")
+                return {
+                    "status": "Ошибка индексации",
+                    "files_count": 0,
+                    "chunks_count": 0
+                }
+            return {
+                "status": "Проиндексирован",
+                "files_count": data.get("total", 0),
+                "chunks_count": data.get("chunks", 0)
+            }
+
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Ошибка запроса: {e}")
+        return {
+            "status": "Ошибка индексации",
+            "files_count": 0,
+            "chunks_count": 0
+        }
+
 
 
 def ask(query: str) -> dict:

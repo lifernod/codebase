@@ -1,18 +1,42 @@
 import streamlit as st
+import json, logging, os
 from utils import render_sidebar, load_css
-import requests
+from api_client import upload_archive
 
 st.set_page_config(layout="wide", page_title="Архивы")
 
+ARCHIVES_FILE = './archives.json'
 
-if "archives" not in st.session_state:
-    st.session_state.archives = []
+if not os.path.exists(ARCHIVES_FILE) or os.path.getsize(ARCHIVES_FILE) == 0:
+    with open(ARCHIVES_FILE, 'w', encoding='utf-8') as f:
+        json.dump([], f, ensure_ascii=False, indent=2)
+
+with open(ARCHIVES_FILE, 'r', encoding='utf-8') as f:
+    st.session_state.archives = json.load(f)
 
 if "processed_files" not in st.session_state:
     st.session_state.processed_files = set()
 
 
-def render_archive_card(archive):
+def save_archives():
+    with open('./archives.json', 'w') as f:
+        archives = st.session_state.archives
+        json.dump(list(filter(lambda x: x['status'] != "Ошибка индексации", archives)), f, indent=2, ensure_ascii=False)
+
+
+def get_last_archive():
+    archives = st.session_state.archives
+    if len(archives):
+        return archives[-1]
+
+
+def delete_archive(archive_id):
+    st.session_state.archives = [a for a in st.session_state.archives if a["id"] != archive_id]
+    save_archives()
+    st.rerun()
+
+
+def render_archive_card(archive, show_delete=True):
     colors = {
         "Индексируется": "#F4B41A",  # Желтый
         "Проиндексирован": "#00E676",  # Зеленый
@@ -20,8 +44,10 @@ def render_archive_card(archive):
     }
     color = colors.get(archive["status"], "#FFFFFF")
 
+    delete_btn_key = f"delete_btn_{archive['id']}"
+
     return f"""
-    <div style="background-color: #1A1A1A; border: 1px solid {color}; border-radius: 12px; padding: 16px; color: #FFFFFF; font-family: sans-serif; margin-bottom: 20px; box-sizing: border-box; height: 220px;">
+    <div style="background-color: #1A1A1A; border: 1px solid {color}; border-radius: 12px; padding: 16px; color: #FFFFFF; font-family: sans-serif; margin-bottom: 5px; box-sizing: border-box; height: 185px;">
         <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
             <div style="background-color: {color}; width: 50px; height: 50px; border-radius: 12px; display: flex; justify-content: center; align-items: center; flex-shrink: 0;">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -33,7 +59,7 @@ def render_archive_card(archive):
                 <div style="font-size: 12pt; color: #888;">{archive['status']}</div>
             </div>
         </div>
-        <div style="display: flex; border-top: 1px solid #333; border-bottom: 1px solid #333; padding: 12px 0;">
+        <div style="display: flex; border-top: 1px solid #333; border-bottom: 1px solid #333; padding: 12px 0; margin-bottom: 15px;">
             <div style="flex: 1; text-align: center; border-right: 1px solid #333;">
                 <div style="font-size: 16pt; font-weight: 500;">{archive.get('files_count', 0)}</div>
                 <div style="font-size: 12pt; color: #888;">Файла</div>
@@ -81,7 +107,6 @@ with col_left:
         )
 
         if uploaded_files:
-            needs_rerun = False
             for file in uploaded_files:
                 if file.name not in st.session_state.processed_files:
                     st.session_state.processed_files.add(file.name)
@@ -101,37 +126,29 @@ with col_left:
                             "file": (file.name, file.getvalue(), "application/zip")
                         }
 
-                        response = requests.post("http://localhost:8000/api/upload", files=files_payload)
+                        response = upload_archive(files_payload)
+                        st.session_state.archives[current_index]["status"] = response["status"]
+                        st.session_state.archives[current_index]["files_count"] = response["files_count"]
+                        st.session_state.archives[current_index]["chunks_count"] = response["chunks_count"]
 
-                        if response.status_code == 200:
-                            data = response.json()
-                            if data.get("total", 0) == 0:
-                                raise Exception
-                            st.session_state.archives[current_index].update({
-                                "status": "Проиндексирован",
-                                "files_count": data.get("total", 0),
-                                "chunks_count": data.get("chunks", 0)
-                            })
-                        else:
-                            st.session_state.archives[current_index]["status"] = "Ошибка индексации"
-                            st.error(f"Ошибка сервера: {response.text}")
+                        save_archives()
+
+                        st.rerun()
 
                     except Exception as e:
                         st.session_state.archives[current_index]["status"] = "Ошибка индексации"
-                        st.error(f"Не удалось подключиться: {e}")
-
-                    needs_rerun = True
-
-            if needs_rerun:
-                st.rerun()
+                        logging.error(f"Ошибка индексации: {e}")
 
     with top_col2:
         if len(st.session_state.archives) > 0:
-            latest_archive = st.session_state.archives[-1]
+            latest_archive = get_last_archive()
             st.markdown(render_archive_card(latest_archive), unsafe_allow_html=True)
+
+            if st.button("Удалить", key=f"delete_btn_latest_{latest_archive['id']}", use_container_width=True):
+                delete_archive(latest_archive['id'])
         else:
             st.markdown('''
-                <div class="custom-card" style="height: 220px; display: flex; align-items: center; justify-content: center;">
+                <div class="custom-card" style="height: 230px; display: flex; align-items: center; justify-content: center;">
                     <div style="text-align: center; color: #555;">
                         <p style="font-size: 14pt; color: #888">Недавний архив</p>
                     </div>
@@ -150,6 +167,9 @@ with col_left:
             for idx, archive in enumerate(row_archives):
                 with cols[idx]:
                     st.markdown(render_archive_card(archive), unsafe_allow_html=True)
+
+                    if st.button("Удалить", key=f"latest_delete_btn_{archive['id']}", use_container_width=True):
+                        delete_archive(archive['id'])
     else:
         st.markdown("<p style='color: #888; font-size: 14pt;'>Вы еще не загрузили ни одного архива</p>",
                     unsafe_allow_html=True)
