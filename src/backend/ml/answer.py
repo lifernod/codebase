@@ -1,11 +1,10 @@
 from dataclasses import dataclass
-from typing import Dict, List
 from json import dumps, loads
 import os
 from dotenv import load_dotenv
 from httpx import AsyncClient
 
-from src.backend.python.utils.chunker import Chunk
+from python.utils.chunker import Chunk
 
 load_dotenv()
 
