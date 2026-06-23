@@ -6,3 +6,4 @@ archive
 .DS_Store
 
 .env
+src/backend/data/chroma
