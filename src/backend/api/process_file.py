@@ -1,5 +1,5 @@
 from pathlib import Path
-from python.utils.chunker import *
+from python.utils.chunker import Chunk, get_all_chunks_of_file
 
 
 def process_file(path: Path) -> list[Chunk]:
@@ -8,9 +8,4 @@ def process_file(path: Path) -> list[Chunk]:
     :param path: Путь до .py файла
     :return: Успешно ли завершена обработка?
     """
-    source = path.read_text(
-        encoding="utf-8",
-        errors="ignore"
-    )
-
     return get_all_chunks_of_file(path)

@@ -1,8 +1,11 @@
+from dataclasses import dataclass
 from typing import Dict, List
 from json import dumps, loads
 import os
 from dotenv import load_dotenv
 from httpx import AsyncClient
+
+from src.backend.python.utils.chunker import Chunk
 
 load_dotenv()
 
@@ -29,46 +32,62 @@ Response format:
 {{"answer": "Your answer to the user", "faithfulness": 0-10, "relevance": 0-10}}
 """.strip()
 
-def format_user_prompt(query: str, chunks: List[Dict[str, str]]) -> str:
+
+@dataclass
+class LLMResponse:
+    """
+    Ответ LLM.
+
+    Attributes:
+        answer (str): Ответ LLM.
+        faithfullness (int): Насколько ответ основывается на реальных чанках.
+        relevance (int): Насколько релевантен ответ.
+    """
+
+    answer: str
+    faithfullness: int
+    relevance: int
+
+
+def format_user_prompt(query: str, chunks: list[Chunk]) -> str:
     return f"User query: {query}\nChunks: {dumps(chunks, indent=2, ensure_ascii=False)}"
 
-async def get_llm_response(client:AsyncClient, query: str, chunks: List[Dict[str, str]]) -> Dict[str, str|int]:
+
+async def get_llm_response(
+    client: AsyncClient, query: str, chunks: list[Chunk]
+) -> LLMResponse:
     """
     Отправляет запрос в OpenRouter API на получение финального ответа пользователю
 
     :param client: httpx.AsyncClient
     :param query: запрос пользователя
     :param chunks: список словарей чанков
-    :return: dict
-        {
-            "answer": ответ ллмки
-            "faithfulness": параметр от 0 до 10 насколько ответ основывается на чанках
-            "relevance": параметр от 0 до 10 насколько релевантен ответ
-        }
+    :return: Ответ LLM
     """
     url = "https://openrouter.ai/api/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
     }
     payload = {
-    "model": "google/gemini-2.5-flash-lite",
-    "messages": [
-        {
-            "role": "system",
-            "content": SYSTEM_PROMPT
-        },
-        {
-            "role": "user",
-            "content": format_user_prompt(query, chunks)
-        }
-    ],
-    "response_format": {"type": "json_object"},
-    "provider": {
-            "order": ["Google AI Studio"]
-        }
+        "model": "google/gemini-2.5-flash-lite",
+        "messages": [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": format_user_prompt(query, chunks)},
+        ],
+        "response_format": {"type": "json_object"},
+        "provider": {"order": ["Google AI Studio"]},
     }
     response = await client.post(url, headers=headers, json=payload)
     if response.status_code != 200:
-        return {"answer": "Сервис временно недоступен, попробуйте позже", "faithfulness": 0, "relevance": 0}
+        return LLMResponse(
+            answer="Сервис временно недоступен, попробуйте позже",
+            faithfullness=0,
+            relevance=0,
+        )
     answer = response.json().get("choices")[0].get("message").get("content")
-    return loads(answer)
+    answer_json = loads(answer)
+    return LLMResponse(
+        answer=answer_json["answer"],
+        faithfullness=answer_json["faithfullness"],
+        relevance=answer_json["relevance"],
+    )
