@@ -131,7 +131,7 @@ button[data-testid="stSidebarCollapseButton"] svg path,
 /* Невидимая кнопка-кликер поверх каждого пункта меню */
 [data-testid="stSidebar"] .stButton {
     position: absolute;
-    margin-top: -65px;
+    margin-top: -45px;
     width: 200px;
     height: 60px;
     opacity: 0;
@@ -158,69 +158,6 @@ button[data-testid="stSidebarCollapseButton"] svg path,
    4. ПОЛЕ ВВОДА ЧАТА (textarea + кнопка отправки)
    --------------------------------------------------------------------- */
 
-div[data-testid="stTextAreaRootElement"],
-div[data-baseweb="base-input"],
-div[data-baseweb="base-input"] > div {
-    border: none !important;
-    box-shadow: none !important;
-    background-color: transparent !important;
-    outline: none !important;
-}
-
-div[data-baseweb="base-input"]:hover,
-div[data-baseweb="base-input"]:focus-within,
-div[data-baseweb="base-input"] textarea:hover,
-div[data-baseweb="base-input"] textarea:focus {
-    box-shadow: none !important;
-    outline: none !important;
-}
-
-div[data-baseweb="base-input"] textarea {
-    background-color: #2C2C2A !important;
-    color: #C3C2B7 !important;
-    border: 1px solid #3B3B38 !important;
-    border-radius: 20px !important;
-    padding: 16pt 16pt !important;
-    font-size: 20pt !important;
-    font-family: helvetica !important;
-    font-weight: 380 !important;
-    resize: none !important;
-    box-sizing: border-box !important;
-    transition: none !important;
-    height: 150px !important;
-}
-
-div[data-baseweb="base-input"] textarea::placeholder {
-    color: #97958C !important;
-    font-size: 20pt !important;
-}
-
-/* Кнопка отправки рядом с textarea */
-[data-testid="stBaseButton-secondary"] {
-    background-color: #2C2C2A !important;
-    height: 150px !important;
-    width: 100% !important;
-    border: 1px solid #3B3B38 !important;
-    border-radius: 20px !important;
-    color: #C3C2B7 !important;
-}
-
-[data-testid="stBaseButton-secondary"]:hover {
-    background-color: #3B3B38 !important;
-    color: #FFFFFF !important;
-    border: 1px solid #555555 !important;
-}
-
-[data-testid="stBaseButton-secondary"] div {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24pt;
-}
-
-/* Закрепление инпута внизу экрана на странице чата, со сдвигом при
-   открытом сайдбаре. Внешний блок — на всю ширину (для центрирования
-   через margin auto во внутреннем), внутренний — ограничен по ширине. */
 div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .chat-input-anchor) {
     position: fixed;
     bottom: 0;
@@ -242,6 +179,67 @@ div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .
 
 body:has([data-testid="stSidebar"][aria-expanded="true"]) div[data-testid="stVerticalBlock"]:has(> div[data-testid="stElementContainer"] .chat-input-anchor) {
     left: calc(50% + 120px);
+}
+
+[data-testid="stChatInput"] {
+    background-color: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+[data-testid="stChatInput"] div[data-baseweb="input"],
+[data-testid="stChatInput"] div[data-baseweb="base-input"],
+[data-testid="stChatInput"] div[data-baseweb="base-input"] > div {
+    background-color: #2C2C2A !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+[data-testid="stChatInput"] > div {
+    background-color: #2C2C2A !important;
+    border: 1px solid #3B3B38 !important;
+    border-radius: 20px !important;
+    padding: 10px 14px !important;
+}
+
+[data-testid="stChatInput"] textarea {
+    background-color: #2C2C2A !important;
+    color: #C3C2B7 !important;
+    font-size: 20pt !important;
+    font-family: helvetica !important;
+    font-weight: 380 !important;
+    line-height: 1.4 !important;
+}
+
+[data-testid="stChatInput"] textarea:focus,
+[data-testid="stChatInput"] textarea:active,
+[data-testid="stChatInput"] textarea:disabled {
+    background-color: #2C2C2A !important;
+    -webkit-text-fill-color: #C3C2B7 !important;
+}
+
+[data-testid="stChatInput"] textarea::placeholder {
+    color: #97958C !important;
+    font-size: 20pt !important;
+    background-color: #2C2C2A !important;
+}
+
+[data-testid="stChatInputSubmitButton"] {
+    background-color: #2C2C2A !important;
+    color: #97958C !important;
+    border: none !important;
+}
+
+[data-testid="stChatInputSubmitButton"]:hover {
+    color: #FFFFFF !important;
+    background-color: #4A4A46 !important;
+    border-radius: 20px;
+}
+
+[data-testid="stChatInput"] > div:focus-within {
+    background-color: #2C2C2A !important;
+    border-color: #555555 !important;
+    box-shadow: none !important;
 }
 
 
@@ -369,7 +367,6 @@ body:has([data-testid="stSidebar"][aria-expanded="true"]) div[data-testid="stVer
     background-color: #1A1A19 !important;
 }
 
-/* Раскрывающийся блок "Подробная таблица по запросам" */
 [data-testid="stExpander"] {
     background: #1A1A19;
     border: 1px solid #2e2e30;
@@ -388,7 +385,6 @@ body:has([data-testid="stSidebar"][aria-expanded="true"]) div[data-testid="stVer
     margin-bottom: 15px;
 }
 
-/* Обычная информационная карточка (например, элемент списка архивов) */
 .custom-card {
     background-color: #1A1A19;
     border: 1px solid #3B3B38;
@@ -398,8 +394,6 @@ body:has([data-testid="stSidebar"][aria-expanded="true"]) div[data-testid="stVer
     margin-bottom: 10px;
 }
 
-/* Визуальная карточка зоны загрузки — то, что видно глазами;
-   реальный file_uploader Стримлита прозрачно лежит поверх неё */
 .upload-visual-card {
     box-shadow: 0 0 7px -1px rgba(255, 255, 255, 0.25);
     background: radial-gradient(at 100% 100%, #4b29c9 0%, #8e75e8 50%, #c3733a 90%);
@@ -410,25 +404,21 @@ body:has([data-testid="stSidebar"][aria-expanded="true"]) div[data-testid="stVer
     align-items: center;
     justify-content: center;
     text-align: center;
-    height: 220px;
+    height: 230px;
     transition: opacity 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
     margin-bottom: 0px !important;
 }
 
 .tall-card {
-    min-height: 220px;
+    min-height: 230px;
     max-height: 100vh;
 }
 
-/* --- Прозрачный загрузчик поверх визуальной карточки --- */
-
-/* Делаем родительскую колонку относительной, чтобы привязать к ней uploader */
 div[data-testid="stColumn"]:has(.upload-visual-card) > div[data-testid="stVerticalBlock"] {
     position: relative;
     height: 220px;
 }
 
-/* Поднимаем системный File Uploader ровно поверх нашей карточки */
 div[data-testid="stColumn"]:has(.upload-visual-card) div[data-testid="stElementContainer"]:has([data-testid="stFileUploader"]) {
     position: absolute;
     top: 0;
@@ -438,8 +428,6 @@ div[data-testid="stColumn"]:has(.upload-visual-card) div[data-testid="stElementC
     z-index: 10;
 }
 
-/* Делаем виджет загрузки практически невидимым, но он по-прежнему
-   ловит клики и drag&drop */
 [data-testid="stFileUploader"] {
     opacity: 0.001 !important;
     height: 220px !important;
@@ -447,22 +435,17 @@ div[data-testid="stColumn"]:has(.upload-visual-card) div[data-testid="stElementC
     cursor: pointer !important;
 }
 
-/* Растягиваем внутреннюю зону перетаскивания на всю карточку */
 [data-testid="stFileUploaderDropzone"] {
     height: 220px !important;
     width: 100% !important;
     cursor: pointer !important;
 }
 
-/* Скрываем стандартный список загруженных файлов Streamlit,
-   чтобы он не ломал вёрстку под прозрачным uploader'ом */
 div[data-testid="stFileUploader"] ul,
 [data-testid="stUploadedFile"] {
     display: none !important;
 }
 
-/* Ховер на визуальной карточке срабатывает только когда курсор
-   реально находится над прозрачной зоной загрузки (220px) */
 div[data-testid="stVerticalBlock"]:has([data-testid="stFileUploader"]:hover) .upload-visual-card {
     opacity: 0.85;
     transform: scale(0.98);

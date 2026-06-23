@@ -58,7 +58,26 @@ if "pending_first_query" in st.session_state:
 for message in st.session_state.messages:
     role_class = "user-message" if message["role"] == "user" else "bot-message"
     with st.chat_message(message["role"]):
-        st.markdown(f'<div class="{role_class}">{message["content"]}</div>', unsafe_allow_html=True)
+        if message["role"] == "user":
+            st.markdown(f'<div class="{role_class}">{message["content"]}</div>', unsafe_allow_html=True)
+        else:
+            content = message["content"]
+            if "```" in content:
+                parts = content.split("```")
+                for i, part in enumerate(parts):
+                    if i % 2 == 0:
+                        if part.strip():
+                            st.markdown(f'<div class="{role_class}">{part}</div>', unsafe_allow_html=True)
+                    else:
+                        lines = part.strip().split("\n", 1)
+                        if len(lines) == 2 and lines[0].strip():
+                            language = lines[0].strip()
+                            code = lines[1].strip()
+                            st.code(code, language=language)
+                        else:
+                            st.code(part.strip())
+            else:
+                st.markdown(f'<div class="{role_class}">{content}</div>', unsafe_allow_html=True)
 
         if message["role"] == "assistant" and "latency" in message:
             if message.get("ok") is False:
@@ -87,12 +106,6 @@ for message in st.session_state.messages:
                 )
 
 
-def continue_chat():
-    query = st.session_state.chat_page_input
-    send_query(query)
-    st.session_state.chat_page_input = ""
-
-
 input_container = st.container()
 
 with input_container:
@@ -101,13 +114,7 @@ with input_container:
     col1, col2, col3 = st.columns([1, 10, 1])
 
     with col2:
-        input_col, btn_col = st.columns([0.9, 0.1])
-        with input_col:
-            st.text_area(
-                "ChatInput",
-                placeholder="Напишите сообщение...",
-                label_visibility="collapsed",
-                key="chat_page_input"
-            )
-        with btn_col:
-            st.button("➤", on_click=continue_chat, key="chat_page_submit")
+        prompt = st.chat_input("Напишите сообщение...")
+        if prompt:
+            send_query(prompt)
+            st.rerun()

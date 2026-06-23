@@ -11,25 +11,13 @@ render_sidebar()
 
 st.markdown("<div class='centered-title'>Чем займемся сегодня?</div>", unsafe_allow_html=True)
 
-col1, col2, col3 = st.columns([1, 10, 1])
+input_container = st.container()
 
-with col2:
-    input_col, btn_col = st.columns([0.9, 0.1])
+with input_container:
+    col1, col2, col3 = st.columns([1, 10, 1])
 
-    with input_col:
-        st.text_area(
-            "Label",
-            placeholder="Задайте вопрос, и получите ответ",
-            label_visibility="collapsed",
-            key="my_chat_input"
-        )
-
-    with btn_col:
-        if st.button("➤"):
-            query = st.session_state.my_chat_input
-            if query:
-                # Главная страница не вызывает API сама — передаёт вопрос
-                # в чат, где он обрабатывается тем же путём, что и обычные
-                # сообщения (включая замер времени и метрики).
-                st.session_state.pending_first_query = query
-                st.switch_page("pages/chat.py")
+    with col2:
+        prompt = st.chat_input("Задайте вопрос, и получите ответ")
+        if prompt:
+            st.session_state.pending_first_query = prompt
+            st.switch_page("pages/chat.py")
