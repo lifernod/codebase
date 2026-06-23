@@ -16,18 +16,20 @@ collection = chroma_client.get_or_create_collection(
     metadata={"hnsw:space": "cosine"}
 )
 
-def create_and_save_chunks_from_file(chunks: list[Chunk]):
+def save_chunks(chunks: list[Chunk]):
     '''
-    Функция для создания чанков из папки проекта и их сохранения
+    Функция для создания чанков из папки проекта и их сохранения.
     Пересоздаёт существующий набор чанков
     Args:
         chunks: Список всех чанков архива
 
     Returns: не возвращает ничего
-
     '''
 
-    chroma_client.delete_collection("codebase")
+    existing = [c.name for c in chroma_client.list_collections()]
+
+    if "codebase" in existing:
+        chroma_client.delete_collection("codebase")
 
     collection = chroma_client.get_or_create_collection(
         name="codebase",
