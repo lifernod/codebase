@@ -14,6 +14,7 @@
 Время ответа НЕ приходит от бэкенда — оно считается локально на фронте
 (в chat.py, через time.perf_counter() вокруг вызова ask()).
 """
+import ast
 
 import httpx
 
@@ -48,7 +49,8 @@ def ask(query: str) -> dict:
             timeout=REQUEST_TIMEOUT,
         )
         response.raise_for_status()
-        data = response.json()
+        data = ast.literal_eval(response.json())
+        #print(data)
 
         return {
             "answer": data.get("answer", "Не удалось получить ответ."),

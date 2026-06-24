@@ -26,6 +26,8 @@ def save_chunks(chunks: list[Chunk]):
     Returns: не возвращает ничего
     '''
 
+    global collection
+
     existing = [c.name for c in chroma_client.list_collections()]
 
     if "codebase" in existing:
@@ -73,6 +75,9 @@ def get_chunks_by_query(vec_queries:list[str], bm25_query:str) -> list[Chunk]:
 
     Returns: список чанков
     '''
+
+    global collection
+
     query_embeddings = ef.encode_queries(vec_queries)
     vec_results = collection.query(
         query_embeddings=query_embeddings,
