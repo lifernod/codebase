@@ -1,8 +1,4 @@
 import chromadb
-from chromadb.utils import embedding_functions
-import sqlite3
-import time
-from pathlib import Path
 from python.utils.chunker import Chunk
 from .bm25_retriever import *
 from .embedder import F2LLMEmbeddingFunction
@@ -25,6 +21,8 @@ def save_chunks(chunks: list[Chunk]):
 
     Returns: не возвращает ничего
     '''
+
+    global collection
 
     existing = [c.name for c in chroma_client.list_collections()]
 
@@ -73,6 +71,9 @@ def get_chunks_by_query(vec_queries:list[str], bm25_query:str) -> list[Chunk]:
 
     Returns: список чанков
     '''
+
+    global collection
+
     query_embeddings = ef.encode_queries(vec_queries)
     vec_results = collection.query(
         query_embeddings=query_embeddings,

@@ -14,12 +14,13 @@
 Время ответа НЕ приходит от бэкенда — оно считается локально на фронте
 (в chat.py, через time.perf_counter() вокруг вызова ask()).
 """
+import ast
 
 import httpx
 import requests
 import logging
 
-API_BASE_URL = "http://localhost:8000"  # поменяй под свой адрес бэкенда
+API_BASE_URL = "http://backend:8000"  # поменяй под свой адрес бэкенда
 
 ASK_ENDPOINT = f"{API_BASE_URL}/api/ask"
 UPLOAD_ENDPOINT = f"{API_BASE_URL}/api/upload"
@@ -86,7 +87,7 @@ def ask(query: str) -> dict:
             "answer": data.get("answer", "Не удалось получить ответ."),
             "faithfulness": data.get("faithfulness", 0),
             "relevance": data.get("relevance", 0),
-            "recall": data.get("recall"),        # None, если это не eval-вопрос
+            "recall": data.get("recall"),  # None, если это не eval-вопрос
             "precision": data.get("precision"),  # None, если это не eval-вопрос
             "ok": True,
         }
@@ -100,7 +101,9 @@ def ask(query: str) -> dict:
             detail = f"Сервис вернул ошибку ({e.response.status_code})."
         return _error_result(detail)
     except httpx.RequestError:
-        return _error_result("Не удалось соединиться с сервисом. Проверьте, что бэкенд запущен.")
+        return _error_result(
+            "Не удалось соединиться с сервисом. Проверьте, что бэкенд запущен."
+        )
 
 
 def _error_result(message: str) -> dict:

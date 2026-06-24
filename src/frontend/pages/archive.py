@@ -40,7 +40,7 @@ def render_archive_card(archive, show_delete=True):
     colors = {
         "Индексируется": "#F4B41A",  # Желтый
         "Проиндексирован": "#00E676",  # Зеленый
-        "Ошибка индексации": "#FF1744"  # Красный
+        "Ошибка индексации": "#FF1744",  # Красный
     }
     color = colors.get(archive["status"], "#FFFFFF")
 
@@ -55,17 +55,17 @@ def render_archive_card(archive, show_delete=True):
                 </svg>
             </div>
             <div style="overflow: hidden;">
-                <div style="font-size: 16pt; font-weight: 500; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{archive['name']}</div>
-                <div style="font-size: 12pt; color: #888;">{archive['status']}</div>
+                <div style="font-size: 16pt; font-weight: 500; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{archive["name"]}</div>
+                <div style="font-size: 12pt; color: #888;">{archive["status"]}</div>
             </div>
         </div>
         <div style="display: flex; border-top: 1px solid #333; border-bottom: 1px solid #333; padding: 12px 0; margin-bottom: 15px;">
             <div style="flex: 1; text-align: center; border-right: 1px solid #333;">
-                <div style="font-size: 16pt; font-weight: 500;">{archive.get('files_count', 0)}</div>
+                <div style="font-size: 16pt; font-weight: 500;">{archive.get("files_count", 0)}</div>
                 <div style="font-size: 12pt; color: #888;">Файла</div>
             </div>
             <div style="flex: 1; text-align: center;">
-                <div style="font-size: 16pt; font-weight: 500;">{archive.get('chunks_count', 0)}</div>
+                <div style="font-size: 16pt; font-weight: 500;">{archive.get("chunks_count", 0)}</div>
                 <div style="font-size: 12pt; color: #888;">Чанка</div>
             </div>
         </div>
@@ -76,8 +76,10 @@ def render_archive_card(archive, show_delete=True):
 load_css()
 render_sidebar()
 
-st.markdown('<div class="archive-title" style="font-size: 32pt; margin-bottom: 20px;">Архивы</div>',
-            unsafe_allow_html=True)
+st.markdown(
+    '<div class="archive-title" style="font-size: 32pt; margin-bottom: 20px;">Архивы</div>',
+    unsafe_allow_html=True,
+)
 
 col_left, col_right = st.columns([3, 1], gap="large")
 
@@ -85,7 +87,8 @@ with col_left:
     top_col1, top_col2 = st.columns([2, 1], gap="medium")
 
     with top_col1:
-        st.markdown('''
+        st.markdown(
+            """
             <div class="upload-container">
                 <div class="custom-card upload-visual-card">
                     <svg width="42" height="47" viewBox="0 0 42 47" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -96,14 +99,16 @@ with col_left:
                     <p style="color: #DDDDDD; font-size: 14pt;">или нажмите для выбора файла</p>
                 </div>
             </div>
-        ''', unsafe_allow_html=True)
+        """,
+            unsafe_allow_html=True,
+        )
 
         uploaded_files = st.file_uploader(
             "Загрузка архива",
             type=["zip"],
             key="archive_uploader",
             label_visibility="collapsed",
-            accept_multiple_files=True
+            accept_multiple_files=True,
         )
 
         if uploaded_files:
@@ -113,10 +118,10 @@ with col_left:
 
                     new_archive = {
                         "id": len(st.session_state.archives) + 1,
-                        "name": file.name.split('.')[0],
+                        "name": file.name.split(".")[0],
                         "status": "Индексируется",
                         "files_count": 0,
-                        "chunks_count": 0
+                        "chunks_count": 0,
                     }
                     st.session_state.archives.append(new_archive)
                     current_index = len(st.session_state.archives) - 1
@@ -153,16 +158,19 @@ with col_left:
                         <p style="font-size: 14pt; color: #888">Недавний архив</p>
                     </div>
                 </div>
-            ''', unsafe_allow_html=True)
+            """,
+                unsafe_allow_html=True,
+            )
 
     st.markdown(
         '<div class="archive-title" style="font-size: 24pt; margin-top: 30px; margin-bottom: 10px;">Ваши архивы</div>',
-        unsafe_allow_html=True)
+        unsafe_allow_html=True,
+    )
 
     if len(st.session_state.archives) > 0:
         for i in range(0, len(st.session_state.archives), 3):
             cols = st.columns(3, gap="medium")
-            row_archives = st.session_state.archives[i:i + 3]
+            row_archives = st.session_state.archives[i : i + 3]
 
             for idx, archive in enumerate(row_archives):
                 with cols[idx]:
@@ -171,15 +179,20 @@ with col_left:
                     if st.button("Удалить", key=f"latest_delete_btn_{archive['id']}", use_container_width=True):
                         delete_archive(archive['id'])
     else:
-        st.markdown("<p style='color: #888; font-size: 14pt;'>Вы еще не загрузили ни одного архива</p>",
-                    unsafe_allow_html=True)
+        st.markdown(
+            "<p style='color: #888; font-size: 14pt;'>Вы еще не загрузили ни одного архива</p>",
+            unsafe_allow_html=True,
+        )
 
 with col_right:
-    st.markdown('''
+    st.markdown(
+        """
         <div class="custom-card tall-card">
             <h4 style="color: #E0E0E0; margin-bottom: 20pt;">Детали архива</h4>
             <p style="color: #888; font-size: 14pt;">
                 Здесь будет отображаться подробная информация по выбранному архиву
             </p>
         </div>
-    ''', unsafe_allow_html=True)
+    """,
+        unsafe_allow_html=True,
+    )
