@@ -21,8 +21,8 @@ You must answer only based on the information present in the chunks.
 If the needed information is not there, politely respond that this information is not found in the codebase. Don't try to come up with an answer if the required code fragments are not there, just answer directly that they are not there.
 In case of irrelevant code fragments, do not mention the fragments that were given to you.
 Answer in the same language as the user's question — if the question is in Russian, answer in Russian; if in English, answer in English.
-Please indicate which files contain the code for what you are explaining, as well as code fragments (from the chunks given to you).
-Don't include code fragments unless they're completely irrelevant to the query.
+Please indicate which files contain the code for what you are explaining (only filenames), and write code fragments (from the chunks given to you).
+Write code fragment ALWAYS.
 
 Each chunk is a JSON object.
 
@@ -137,7 +137,6 @@ def calculate_rag_metrics(
         ),
         None,
     )
-
     if not eval_item:
         return None, None
 
@@ -155,7 +154,7 @@ def calculate_rag_metrics(
     for chunk in top_k_chunks:
         # Подготавливаем строку для поиска, объединяя id и значения метаданных
         search_area = (
-            f"{chunk.id} {json.dumps(chunk.metadata, ensure_ascii=False)}".lower()
+            f"{chunk.id} {json.dumps(chunk.metadata, ensure_ascii=False)}".lower().replace('\\', '/')
         )
         is_match = False
 
@@ -177,5 +176,4 @@ def calculate_rag_metrics(
     # Считаем метрики в процентах и приводим к int
     precision = int((true_positives / len(top_k_chunks)) * 100)
     recall = int((true_positives / len(correct_chunk_ids)) * 100)
-
     return precision, recall
