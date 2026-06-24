@@ -1,6 +1,6 @@
-from typing import Dict, List
-from json import dumps, loads
+import json
 import os
+from typing import Tuple, List
 from dotenv import load_dotenv
 from httpx import AsyncClient
 from json import load
@@ -41,12 +41,18 @@ if os.path.exists(EVAL_FILE_PATH):
     with open(EVAL_FILE_PATH, "r", encoding="utf-8") as f:
         EVAL_DATA = load(f)
 else:
-    info(f"Файл {EVAL_FILE_PATH} не найден. Метрики Precision и Recall рассчитываться не будут.")
+    info(
+        f"Файл {EVAL_FILE_PATH} не найден. Метрики Precision и Recall рассчитываться не будут."
+    )
+
 
 def format_user_prompt(query: str, chunks: List[Chunk]) -> str:
     return f"User query: {query}\nChunks: {'\n-----------\n'.join([str(x) for x in chunks])}"
 
-async def get_llm_response(client:AsyncClient, query: str, chunks: List[Chunk]) -> FinalAnswer:
+
+async def get_llm_response(
+    client: AsyncClient, query: str, chunks: List[Chunk]
+) -> FinalAnswer:
     """
     Отправляет запрос в OpenRouter API на получение финального ответа пользователю
 
@@ -65,21 +71,13 @@ async def get_llm_response(client:AsyncClient, query: str, chunks: List[Chunk]) 
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
     }
     payload = {
-    "model": "google/gemini-2.5-flash-lite",
-    "messages": [
-        {
-            "role": "system",
-            "content": SYSTEM_PROMPT
-        },
-        {
-            "role": "user",
-            "content": format_user_prompt(query, chunks)
-        }
-    ],
-    "response_format": {"type": "json_object"},
-    "provider": {
-            "order": ["Google AI Studio"]
-        }
+        "model": "google/gemini-2.5-flash-lite",
+        "messages": [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": format_user_prompt(query, chunks)},
+        ],
+        "response_format": {"type": "json_object"},
+        "provider": {"order": ["Google AI Studio"]},
     }
 
     precision_val, recall_val = calculate_rag_metrics(query, chunks)
@@ -91,7 +89,7 @@ async def get_llm_response(client:AsyncClient, query: str, chunks: List[Chunk]) 
             faithfulness=0,
             relevance=0,
             precision=precision_val,
-            recall=recall_val
+            recall=recall_val,
         )
 
     try:
@@ -104,7 +102,7 @@ async def get_llm_response(client:AsyncClient, query: str, chunks: List[Chunk]) 
             faithfulness=0,
             relevance=0,
             precision=precision_val,
-            recall=recall_val
+            recall=recall_val,
         )
 
     return FinalAnswer(
@@ -112,23 +110,25 @@ async def get_llm_response(client:AsyncClient, query: str, chunks: List[Chunk]) 
         faithfulness=int(answer_json.get("faithfulness", 0)),
         relevance=int(answer_json.get("relevance", 0)),
         precision=precision_val,
-        recall=recall_val
+        recall=recall_val,
     )
 
 
-from typing import List, Tuple
-import json
-
-
-def calculate_rag_metrics(query: str, chunks: List[Chunk]) -> Tuple[int | None, int | None]:
+def calculate_rag_metrics(
+    query: str, chunks: List[Chunk]
+) -> Tuple[int | None, int | None]:
     """
     Ищет запрос в базе эталонных вопросов и считает Precision@5 и Recall@5 (от 0 до 100).
     Возвращает (precision, recall) в виде целых чисел или (None, None), если вопрос не тестовый.
     """
     # Ищем вопрос в загруженных данных (предполагается, что EVAL_DATA уже загружен из eval_questions.json)
     eval_item = next(
-        (item for item in EVAL_DATA if item["query"].strip().lower() == query.strip().lower()),
-        None
+        (
+            item
+            for item in EVAL_DATA
+            if item["query"].strip().lower() == query.strip().lower()
+        ),
+        None,
     )
 
     if not eval_item:
@@ -147,7 +147,9 @@ def calculate_rag_metrics(query: str, chunks: List[Chunk]) -> Tuple[int | None, 
 
     for chunk in top_k_chunks:
         # Подготавливаем строку для поиска, объединяя id и значения метаданных
-        search_area = f"{chunk.id} {json.dumps(chunk.metadata, ensure_ascii=False)}".lower()
+        search_area = (
+            f"{chunk.id} {json.dumps(chunk.metadata, ensure_ascii=False)}".lower()
+        )
         is_match = False
 
         for gt_id in correct_chunk_ids:
