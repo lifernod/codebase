@@ -49,8 +49,7 @@ def ask(query: str) -> dict:
             timeout=REQUEST_TIMEOUT,
         )
         response.raise_for_status()
-        data = ast.literal_eval(response.json())
-        #print(data)
+        data = response.json()
 
         return {
             "answer": data.get("answer", "Не удалось получить ответ."),

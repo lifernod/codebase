@@ -1,8 +1,4 @@
 import chromadb
-from chromadb.utils import embedding_functions
-import sqlite3
-import time
-from pathlib import Path
 from python.utils.chunker import Chunk
 from .bm25_retriever import *
 from .embedder import F2LLMEmbeddingFunction

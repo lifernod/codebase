@@ -10,7 +10,8 @@ from fastapi import FastAPI, UploadFile, File, HTTPException, Depends
 
 from api.process_codebase import process_codebase
 from ml.reranker import rerank_chunks
-from ml.answer import LLMResponse, get_llm_response
+from ml.answer import get_llm_response
+from python.utils.ml import FinalAnswer
 from database.bd_setup import save_chunks, get_chunks_by_query
 from api.types.process_response import UploadResponse
 
@@ -111,7 +112,7 @@ async def upload_archive(
 @app.get("/api/ask", deprecated=True, summary="Ответ на вопрос пользователя")
 async def ask(
     q: str, client: httpx.AsyncClient = Depends(get_http_client)
-) -> LLMResponse:
+) -> FinalAnswer:
     chunks = get_chunks_by_query([q], q)
     reranked_chunks = rerank_chunks(q, chunks)
     return await get_llm_response(client=client, query=q, chunks=reranked_chunks)
